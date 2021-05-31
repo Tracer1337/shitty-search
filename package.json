@@ -1,0 +1,13 @@
+{
+  "name": "shitty-search",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "javac src/Crawler.java -d ./out",
+    "start": "java -classpath out Crawler",
+    "dev": "npm run build && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
