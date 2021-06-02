@@ -10,30 +10,68 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 class Crawler implements Callable<List<String>> {
-    public static final String entrypoint = "https://www.reddit.com/";
+    public static final String entrypoint = "https://www.easymeme69.com/";
     public static final String[] allowedContentTypes = {"text/html"};
+    public static final int maxThreads = 3;
 
     public static void main(String[] args) {
         Queue<String> urls = new LinkedList<String>();
+        List<String> visited = new ArrayList<String>();
         urls.add(Crawler.entrypoint);
-        ExecutorService exec = Executors.newCachedThreadPool();
-        List<Callable<List<String>>> threads = new ArrayList<Callable<List<String>>>();
 
-        Crawler thread = new Crawler(urls.poll());
-        threads.add(thread);
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        CompletionService<List<String>> completionService = new ExecutorCompletionService<List<String>>(executorService);
+        int threadsCount = 0;
 
-        try {
-            List<Future<List<String>>> results = exec.invokeAll(threads);
-            for (Future<List<String>> result : results) {
-                System.out.println(result.get());
+        while (urls.size() > 0) {
+            for (int i = 0; i < Crawler.maxThreads; i++) {
+                if (threadsCount >= Crawler.maxThreads) {
+                    break;
+                }
+
+                String url = urls.poll();
+
+                if (url == null) {
+                    break;
+                }
+
+                Crawler crawler = new Crawler(url);
+                completionService.submit(crawler);
+                visited.add(url);
+                Storage.store(url);
+                threadsCount++;
             }
-        } catch (Exception exception) {
-            System.out.println("Error");
+
+            System.out.println(String.format("New iteration with %d threads", threadsCount));
+
+            try {
+                Future<List<String>> result = completionService.take();
+                List<String> newUrls = result.get();
+                if (newUrls != null) {
+                    newUrls.forEach((newUrl) -> {
+                        if (!visited.contains(newUrl)) {
+                            urls.add(newUrl);
+                        }
+                    });
+                }
+                threadsCount--;
+
+            } catch (InterruptedException exception) {
+                System.out.println("Error interrupted exception");
+                exception.printStackTrace();
+
+            } catch (ExecutionException exception) {
+                System.out.println("Error execution exception");
+                exception.printStackTrace();
+            }
         }
     }
 
@@ -74,7 +112,7 @@ class Crawler implements Callable<List<String>> {
     }
 
     public List<String> crawl(String url) {
-        System.out.println(url);
+        System.out.println("Crawling: " + url);
 
         try {
             HttpResponse<String> result = this.request(url);
