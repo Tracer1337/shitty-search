@@ -12,8 +12,8 @@ public class Parser {
     
     public List<String> getLinks() {
         List<String> links = new ArrayList<String>();
-        Pattern pattern = Pattern.compile("https?:\\/\\/[0-9A-z.-]+(\\/[0-9A-z./-]*(\\?([0-9A-z-]+=[^&#\"'-]+&?)*)?(#[^\"']*)?)?");
-        Matcher matcher = pattern.matcher(this.html);
+        Pattern pattern = Pattern.compile("https?:\\/\\/[0-9A-z.-]+(\\/[0-9A-z./-]*)?");
+        Matcher matcher = pattern.matcher(html);
         while (matcher.find()) {
             links.add(matcher.group());
         }
