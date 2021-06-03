@@ -18,22 +18,41 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 class Crawler implements Callable<List<String>> {
-    public static final String entrypoint = "https://www.easymeme69.com/";
+    public static final String entrypoint = "https://play.google.com/store/apps/details?id=com.easymeme69.memegenerator";
     public static final String[] allowedContentTypes = {"text/html"};
-    public static final int maxThreads = 3;
+    public static final List<String> ignoreUrls = List.of(
+        "https://books.google.com/books/publisher/content/images/frontcover",
+        "https://play-lh.googleusercontent.com",
+        "https://www.youtube.com/embed",
+        "https://i.ytimg.com/",
+        "https://youtu.be/",
+        "https://github.githubassets.com"
+    );
+    public static final int maxThreads = 30;
+    public static final Storage visitedStorage = new Storage("visited.txt");
+    public static int i = 0;
 
     public static void main(String[] args) {
         Queue<String> urls = new LinkedList<String>();
-        List<String> visited = new ArrayList<String>();
-        urls.add(Crawler.entrypoint);
+        List<String> knownUrls = new ArrayList<String>();
+        urls.add(entrypoint);
 
         ExecutorService executorService = Executors.newCachedThreadPool();
         CompletionService<List<String>> completionService = new ExecutorCompletionService<List<String>>(executorService);
         int threadsCount = 0;
 
+        Storage queueStorage = new Storage("queue.txt");
+        Storage knownUrlsStorage = new Storage("known.txt");
+
         while (urls.size() > 0) {
-            for (int i = 0; i < Crawler.maxThreads; i++) {
-                if (threadsCount >= Crawler.maxThreads) {
+            queueStorage.clear();
+            urls.forEach(queueStorage::store);
+
+            knownUrlsStorage.clear();
+            knownUrls.forEach(knownUrlsStorage::store);
+            
+            for (int i = 0; i < maxThreads; i++) {
+                if (threadsCount >= maxThreads) {
                     break;
                 }
 
@@ -45,20 +64,19 @@ class Crawler implements Callable<List<String>> {
 
                 Crawler crawler = new Crawler(url);
                 completionService.submit(crawler);
-                visited.add(url);
-                Storage.store(url);
                 threadsCount++;
             }
 
-            System.out.println(String.format("New iteration with %d threads", threadsCount));
+            System.out.println(String.format("Threads: %d", threadsCount));
 
             try {
                 Future<List<String>> result = completionService.take();
                 List<String> newUrls = result.get();
                 if (newUrls != null) {
                     newUrls.forEach((newUrl) -> {
-                        if (!visited.contains(newUrl)) {
+                        if (!knownUrls.contains(newUrl)) {
                             urls.add(newUrl);
+                            knownUrls.add(newUrl);
                         }
                     });
                 }
@@ -82,7 +100,7 @@ class Crawler implements Callable<List<String>> {
     }
 
     public List<String> call() {
-        return this.crawl(this.url);
+        return crawl(url);
     }
     
     public HttpResponse<String> request(String url) throws URISyntaxException, IOException, InterruptedException {
@@ -96,10 +114,14 @@ class Crawler implements Callable<List<String>> {
         HttpHeaders headers = response.headers();
         List<String> contentType = headers.map().get("Content-Type");
 
-        if (contentType.size() != 0) {
+        if (contentType != null && contentType.size() != 0) {
+            if (response.statusCode() != 200) {
+                return false;
+            }
+
             boolean result = false;
 
-            for (String mimeType : Crawler.allowedContentTypes) {
+            for (String mimeType : allowedContentTypes) {
                 if (contentType.get(0).startsWith(mimeType)) {
                     result = true;
                 }
@@ -111,22 +133,39 @@ class Crawler implements Callable<List<String>> {
         return false;
     }
 
+    private void storeHTML(String url, HttpResponse<String> response) {
+        Storage storage = new Storage(Crawler.i++ + ".html");
+        storage.store(url);
+        storage.store("");
+        storage.store(response.body());
+    }
+
     public List<String> crawl(String url) {
         System.out.println("Crawling: " + url);
 
         try {
-            HttpResponse<String> result = this.request(url);
+            HttpResponse<String> result = request(url);
 
-            if (!this.shouldCrawl(result)) {
+            if (!shouldCrawl(result)) {
                 return null;
             }
+
+            storeHTML(url, result);
+            visitedStorage.store(url);
 
             Parser parser = new Parser(result.body());
             List<String> links = parser.getLinks();
 
+            links.removeIf((link) ->
+                Crawler.ignoreUrls.stream().anyMatch(
+                    (ignored) -> link.startsWith(ignored)
+                )
+            );
+
             return links;
-        } catch (Exception error) {
+        } catch (Exception exception) {
             System.out.println("Error");
+            exception.printStackTrace();
         }
 
         return null;
