@@ -42,7 +42,7 @@ public class Database {
         return connection;
     }
 
-    private void disconnect() {
+    public void disconnect() {
         if (connection != null) {
             try {
                 connection.close();
@@ -54,16 +54,15 @@ public class Database {
         }
     }
 
-    public void execute(String query) {
+    public ResultSet query(String query) {
         try {
             Statement statement = connect().createStatement();
             ResultSet result = statement.executeQuery(query);
+            return result;
         } catch (SQLException exception) {
             System.out.println(String.format("Failed to execute query '%s'", query));
             exception.printStackTrace();
-            return;
-        } finally {
-            disconnect();
+            return null;
         }
     }
 }
