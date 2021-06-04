@@ -28,7 +28,7 @@ class Crawler implements Callable<List<String>> {
         "https://youtu.be/",
         "https://github.githubassets.com"
     );
-    public static final int maxThreads = 30;
+    public static final int maxThreads = 12;
     public static final Storage visitedStorage = new Storage("visited.txt");
     public static int i = 0;
 

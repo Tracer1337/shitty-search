@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "node scripts/compile.js",
-    "start": "java -classpath out Crawler",
-    "dev": "npm run build && npm start"
+    "dev": "mvn clean compile exec:java"
   },
   "keywords": [],
   "author": "",
