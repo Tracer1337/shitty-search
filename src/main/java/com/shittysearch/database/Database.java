@@ -13,6 +13,7 @@ public class Database {
     private static final String username = "root";
     private static final String password = "root";
     private static final String maxPooledStatements = "100";
+    private static final String useSSL = "false";
 
     private Connection connection;
     private Properties properties;
@@ -20,9 +21,10 @@ public class Database {
     private Properties getProperties() {
         if (properties == null) {
             properties = new Properties();
-            properties.setProperty("username", username);
+            properties.setProperty("user", username);
             properties.setProperty("password", password);
             properties.setProperty("MaxPooledStatements", maxPooledStatements);
+            properties.setProperty("useSSL", useSSL);
         }
         return properties;
     }
@@ -56,7 +58,6 @@ public class Database {
         try {
             Statement statement = connect().createStatement();
             ResultSet result = statement.executeQuery(query);
-            System.out.println(result);
         } catch (SQLException exception) {
             System.out.println(String.format("Failed to execute query '%s'", query));
             exception.printStackTrace();
