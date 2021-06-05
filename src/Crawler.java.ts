@@ -31,8 +31,6 @@ export default class Crawler {
     }
 
     public async crawl() {
-        console.log("Crawling", this.url)
-
         const result = await fetch(this.url)
 
         if (!this.shouldCrawl(result)) {

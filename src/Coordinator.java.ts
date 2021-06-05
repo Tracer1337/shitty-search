@@ -1,47 +1,99 @@
+import cluster, { Worker as WorkerProcess } from "cluster"
+import os from "os"
 import Queue from "./Queue.java"
-import config from "../config.json"
-import Crawler from "./Crawler.java"
 import Storage from "./Storage.java"
+import Worker from "./Worker.java"
+import config from "../config.json"
+import { IPCMessage } from "./types"
 
-export default class Coordinator {    
+export default class Coordinator {
+    private static nThreads = os.cpus().length
+
     public static main(args: string[]) {
-        const coordinator = new Coordinator()
-        coordinator.run()
+        if (cluster.isMaster) {
+            const coordinator = new Coordinator()
+            coordinator.run()
+        }
+
+        if (cluster.isWorker) {
+            new Worker()
+        }
     }
 
-    private urls = new Queue<string>()
+    private workerQueue = new Queue<WorkerProcess>()
+    private indexQueue = new Queue<string>()
     private knownUrls: string[] = []
-    private urlsStorage = new Storage("queue.txt")
+
+    private indexQueueStorage = new Storage("queue.txt")
     private knownUrlsStorage = new Storage("known.txt")
-    private indexedUrlsStorage = new Storage("index.txt")
+    private indexedUrlsStorage = new Storage("indexed.txt")
 
     constructor() {
-        this.urls.add(config.entrypoint)
+        this.indexQueue.add(config.entrypoint)
+        cluster.on("exit", this.handleWorkerExit.bind(this))
+        cluster.on("message", this.handleWorkerMessage.bind(this))
+        cluster.on("online", this.supplyWorkers.bind(this))
     }
 
     public async run() {
-        while(this.urls.size() > 0) {
-            this.urlsStorage.clear()
-            this.urlsStorage.store(this.urls.join("\n"))
+        this.createWorkers()
+    }
 
-            this.knownUrlsStorage.clear()
-            this.knownUrlsStorage.store(this.knownUrls.join("\n"))
+    private createWorkers() {
+        for (let i = 0; i < Coordinator.nThreads; i++) {
+            const worker = cluster.fork()
+            this.workerQueue.add(worker)
+        }
+    }
 
-            const url = this.urls.poll()
-            const crawler = new Crawler(url)
-            const newUrls = await crawler.crawl()
-
-            if (newUrls === null) {
+    private supplyWorkers() {
+        for (let worker of this.workerQueue) {
+            if (!worker.isConnected()) {
                 continue
             }
 
-            const filtered = this.filterUrls(Array.from(newUrls))
-            
-            filtered.forEach((url) => this.knownUrls.push(url))
-            filtered.forEach((url) => this.urls.add(url))
-            
-            await this.indexedUrlsStorage.store(url)
+            if (this.indexQueue.size() <= 0) {
+                break
+            }
+
+            const message: IPCMessage = {
+                command: "master.task",
+                data: this.indexQueue.poll()
+            }
+            worker.send(message)
+
+            this.workerQueue.remove(worker)
         }
+
+        this.storeState()
+    }
+
+    private async handleWorkerMessage(worker: WorkerProcess, message: IPCMessage) {
+        if (message.command === "worker.result") {
+            if (message.data.result !== null) {
+                const newUrls = this.filterUrls(message.data.result)
+                newUrls.forEach((url) => this.knownUrls.push(url))
+                newUrls.forEach((url) => this.indexQueue.add(url))
+            }
+            this.workerQueue.add(worker)
+            this.supplyWorkers()
+            await this.indexedUrlsStorage.store(message.data.source)
+        }
+    }
+
+    private handleWorkerExit(worker: WorkerProcess, code: number, signal: string) {
+        console.log(`Worker ${worker.process.pid} died: ${code || signal}`)
+    }
+
+    private async storeState() {
+        await Promise.all([
+            this.indexQueueStorage.clear(),
+            this.knownUrlsStorage.clear()
+        ])
+        await Promise.all([
+            this.indexQueueStorage.store(this.indexQueue.join("\n")),
+            this.knownUrlsStorage.store(this.knownUrls.join("\n"))
+        ])
     }
 
     private filterUrls(urls: string[]) {
