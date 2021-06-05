@@ -1,12 +1,4 @@
 {
     "entrypoint": "https://easymeme69.com",
-    "allowedContentTypes": ["text/html"],
-    "ignoreUrls": [
-        "https://books.google.com/books/publisher/content/images/frontcover",
-        "https://play-lh.googleusercontent.com",
-        "https://www.youtube.com/embed",
-        "https://i.ytimg.com/",
-        "https://youtu.be/",
-        "https://github.githubassets.com"
-    ]
+    "allowedContentTypes": ["text/html"]
 }

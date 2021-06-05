@@ -13,6 +13,7 @@ export default class Coordinator {
     private knownUrls: string[] = []
     private urlsStorage = new Storage("queue.txt")
     private knownUrlsStorage = new Storage("known.txt")
+    private indexedUrlsStorage = new Storage("index.txt")
 
     constructor() {
         this.urls.add(config.entrypoint)
@@ -26,7 +27,8 @@ export default class Coordinator {
             this.knownUrlsStorage.clear()
             this.knownUrlsStorage.store(this.knownUrls.join("\n"))
 
-            const crawler = new Crawler(this.urls.poll())
+            const url = this.urls.poll()
+            const crawler = new Crawler(url)
             const newUrls = await crawler.crawl()
 
             if (newUrls === null) {
@@ -34,9 +36,11 @@ export default class Coordinator {
             }
 
             const filtered = this.filterUrls(Array.from(newUrls))
-
+            
             filtered.forEach((url) => this.knownUrls.push(url))
             filtered.forEach((url) => this.urls.add(url))
+            
+            await this.indexedUrlsStorage.store(url)
         }
     }
 

@@ -30,14 +30,6 @@ export default class Crawler {
         )
     }
 
-    private filterLinks(links: Set<string>) {
-        links.forEach((link) => {
-            if (config.ignoreUrls.includes(link)) {
-                links.delete(link)
-            }
-        })
-    }
-
     public async crawl() {
         console.log("Crawling", this.url)
 
@@ -49,9 +41,6 @@ export default class Crawler {
 
         const html = await result.text()
         const parser = new Parser(html)
-        const links = parser.getLinks()
-        this.filterLinks(links)
-
-        return links
+        return parser.getLinks()
     }
 }

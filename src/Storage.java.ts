@@ -15,13 +15,15 @@ export default class Storage {
         await fs.promises.mkdir(path, { recursive: true })
     }
 
-    public clear() {
-        return this.store("")
+    public async clear() {
+        try {
+            await fs.promises.writeFile(this.filepath, "")
+        } catch {}
     }
 
     public async store(content: string, append = true) {
-        this.createDir(this.getFilePath())
-        await fs.promises.writeFile(
+        await this.createDir(this.getFilePath())
+        await fs.promises.appendFile(
             this.filepath,
             append ? content + "\n" : content
         )
