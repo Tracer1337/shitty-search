@@ -3,8 +3,9 @@ import os from "os"
 import Queue from "./Queue.java"
 import Storage from "./Storage.java"
 import Worker from "./Worker.java"
-import config from "../config.json"
+import Database from "./database/Database.java"
 import { IPCMessage } from "./types"
+import config from "../config.json"
 
 export default class Coordinator {
     private static nThreads = os.cpus().length
@@ -36,6 +37,7 @@ export default class Coordinator {
     }
 
     public async run() {
+        await Database.migrate()
         this.createWorkers()
     }
 
