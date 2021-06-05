@@ -4,6 +4,7 @@ import Queue from "./Queue.java"
 import Storage from "./Storage.java"
 import Worker from "./Worker.java"
 import Database from "./database/Database.java"
+import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
 import { IPCMessage } from "./types"
 import config from "../config.json"
 
@@ -79,7 +80,7 @@ export default class Coordinator {
             }
             this.workerQueue.add(worker)
             this.supplyWorkers()
-            await this.indexedUrlsStorage.store(message.data.source)
+            await PageIndexRepository.create({ url: message.data.source })
         }
     }
 
