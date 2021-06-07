@@ -1,5 +1,3 @@
-out/
-storage/
-target/
 dist/
 node_modules/
+storage/

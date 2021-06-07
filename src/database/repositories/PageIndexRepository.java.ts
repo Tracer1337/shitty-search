@@ -11,8 +11,7 @@ export default class PageIndexRepository {
             url: values.url
         })
         const result = await Database.getConnection().query(`
-            INSERT INTO ${this.table} (url)
-            VALUES ('${pageIndex.url}')
+            INSERT INTO ${this.table} (url) VALUES ('${pageIndex.url}')
         `)
         const header = result[0] as ResultSetHeader
         pageIndex.id = header.insertId
@@ -23,7 +22,7 @@ export default class PageIndexRepository {
         const res = await Database.getConnection().query(`
             SELECT COUNT(1) FROM ${this.table} WHERE url='${url}'
         `)
-        const row = res[0] as RowDataPacket
-        return row["COUNT(1)"] === 1
+        const [row] = res[0] as RowDataPacket[]
+        return row["COUNT(1)"] >= 1
     }
 }
