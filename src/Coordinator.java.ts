@@ -7,6 +7,8 @@ import Database from "./database/Database.java"
 import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
 import { IPCMessage } from "./types"
 import config from "../config.json"
+import LinksRepository from "./database/repositories/LinksRepository.java"
+import PageIndex from "./database/models/PageIndex.java"
 
 export default class Coordinator {
     private static nThreads = os.cpus().length
@@ -28,7 +30,6 @@ export default class Coordinator {
 
     private indexQueueStorage = new Storage("queue.txt")
     private knownUrlsStorage = new Storage("known.txt")
-    private indexedUrlsStorage = new Storage("indexed.txt")
 
     constructor() {
         this.indexQueue.add(config.entrypoint)
@@ -73,19 +74,29 @@ export default class Coordinator {
 
     private async handleWorkerMessage(worker: WorkerProcess, message: IPCMessage) {
         if (message.command === "worker.result") {
+            const pageIndex = await PageIndexRepository.create({ url: message.data.source })
             if (message.data.result !== null) {
-                const newUrls = this.filterUrls(message.data.result)
-                newUrls.forEach((url) => this.knownUrls.push(url))
-                newUrls.forEach((url) => this.indexQueue.add(url))
+                await this.storeResult(pageIndex, message.data.result)
             }
             this.workerQueue.add(worker)
             this.supplyWorkers()
-            await PageIndexRepository.create({ url: message.data.source })
         }
     }
 
     private handleWorkerExit(worker: WorkerProcess, code: number, signal: string) {
         console.log(`Worker ${worker.process.pid} died: ${code || signal}`)
+    }
+    
+    private async storeResult(pageIndex: PageIndex, urls: string[]) {
+        const newUrls = this.filterUrls(urls)
+        newUrls.forEach((url) => this.knownUrls.push(url))
+        newUrls.forEach((url) => this.indexQueue.add(url))
+        await Promise.all(newUrls.map(async (url) => {
+            await LinksRepository.create({
+                from_page_index_id: pageIndex.id,
+                to_url: url
+            })
+        }))
     }
 
     private async storeState() {

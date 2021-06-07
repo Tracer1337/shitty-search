@@ -1,3 +1,4 @@
+import { ResultSetHeader } from "mysql2"
 import Database from "../Database.java"
 import PageIndex from "../models/PageIndex.java"
 
@@ -9,9 +10,12 @@ export default class PageIndexRepository {
             id: null,
             url: values.url
         })
-        await Database.getConnection().query(`
+        const result = await Database.getConnection().query(`
             INSERT INTO ${this.table} (url)
             VALUES ('${pageIndex.url}')
         `)
+        const header = result[0] as ResultSetHeader
+        pageIndex.id = header.insertId
+        return pageIndex
     }
 }
