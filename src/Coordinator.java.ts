@@ -26,10 +26,8 @@ export default class Coordinator {
 
     private workerQueue = new Queue<WorkerProcess>()
     private indexQueue = new Queue<string>()
-    private knownUrls: string[] = []
 
     private indexQueueStorage = new Storage("queue.txt")
-    private knownUrlsStorage = new Storage("known.txt")
 
     constructor() {
         this.indexQueue.add(config.entrypoint)
@@ -88,29 +86,32 @@ export default class Coordinator {
     }
     
     private async storeResult(pageIndex: PageIndex, urls: string[]) {
-        const newUrls = this.filterUrls(urls)
-        newUrls.forEach((url) => this.knownUrls.push(url))
-        newUrls.forEach((url) => this.indexQueue.add(url))
-        await Promise.all(newUrls.map(async (url) => {
+        for (let url of urls) {
+            const isKnownUrl = await this.isKnownUrl(url)
+            if (isKnownUrl) {
+                return
+            }
             await LinksRepository.create({
                 from_page_index_id: pageIndex.id,
                 to_url: url
             })
-        }))
+            this.indexQueue.add(url)
+        }
     }
 
     private async storeState() {
-        await Promise.all([
-            this.indexQueueStorage.clear(),
-            this.knownUrlsStorage.clear()
-        ])
-        await Promise.all([
-            this.indexQueueStorage.store(this.indexQueue.join("\n")),
-            this.knownUrlsStorage.store(this.knownUrls.join("\n"))
-        ])
+        this.indexQueueStorage.clear()
+        this.indexQueueStorage.store(this.indexQueue.join("\n"))
     }
 
-    private filterUrls(urls: string[]) {
-        return urls.filter((url) => !this.knownUrls.includes(url))
+    private async isKnownUrl(url: string) {
+        if (this.indexQueue.includes(url)) {
+            return true
+        }
+        const isIndexed = await PageIndexRepository.isIndexed(url)
+        if (isIndexed) {
+            return true
+        }
+        return false
     }
 }

@@ -1,4 +1,4 @@
-import { ResultSetHeader } from "mysql2"
+import { ResultSetHeader, RowDataPacket } from "mysql2"
 import Database from "../Database.java"
 import PageIndex from "../models/PageIndex.java"
 
@@ -17,5 +17,13 @@ export default class PageIndexRepository {
         const header = result[0] as ResultSetHeader
         pageIndex.id = header.insertId
         return pageIndex
+    }
+
+    public static async isIndexed(url: string) {
+        const res = await Database.getConnection().query(`
+            SELECT COUNT(1) FROM ${this.table} WHERE url='${url}'
+        `)
+        const row = res[0] as RowDataPacket
+        return row["COUNT(1)"] === 1
     }
 }
