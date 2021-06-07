@@ -10,7 +10,7 @@ export default class Database {
         "page_index": `
             CREATE TABLE page_index (
                 id int PRIMARY KEY AUTO_INCREMENT,
-                url varchar(255) NOT NULL
+                url varchar(255) NOT NULL UNIQUE
             );
         `,
         "links": `

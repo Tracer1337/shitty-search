@@ -1,6 +1,8 @@
 import cheerio, { CheerioAPI } from "cheerio"
 
 export default class Parser {
+    private static urlMaxLength = 255
+
     private $: CheerioAPI
 
     constructor(html: string) {
@@ -30,6 +32,9 @@ export default class Parser {
     }
 
     private isHttpUrl(urlString: string) {
+        if (urlString.length > Parser.urlMaxLength) {
+            return false
+        }
         try {
             const url = new URL(urlString)
             return url.protocol === "http:" || url.protocol === "https:"
