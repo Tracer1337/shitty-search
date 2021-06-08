@@ -14,13 +14,10 @@ export default class Worker {
 
     private async handleTask(url: string) {
         const crawler = new Crawler(url)
-        const links = await crawler.crawl()
+        const result = await crawler.crawl()
         const message: IPCMessage = {
             command: "worker.result",
-            data: {
-                source: url,
-                result: links !== null ? Array.from(links) : null
-            }
+            data: { source: url, result }
         }
         process.send(message)
     }

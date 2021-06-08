@@ -10,6 +10,8 @@ import LinksRepository from "./database/repositories/LinksRepository.java"
 import PageIndex from "./database/models/PageIndex.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import Storage from "./Storage.java"
+import WorkerResult from "./structures/WorkerResult.java"
+import WordsRepository from "./database/repositories/WordsRepository.java"
 
 export default class Coordinator {
     private static nThreads = os.cpus().length
@@ -79,7 +81,8 @@ export default class Coordinator {
             try {
                 const pageIndex = await PageIndexRepository.create({ url: message.data.source })
                 if (message.data.result !== null) {
-                    await this.storeWorkerResult(pageIndex, message.data.result)
+                    const result = new WorkerResult(message.data.result)
+                    await this.storeWorkerResult(pageIndex, result)
                 }
             } catch (error) {
                 await this.logStorage.store(`${error.stack}\n\n`)
@@ -93,7 +96,14 @@ export default class Coordinator {
         console.log(`Worker ${worker.process.pid} died: ${code || signal}`)
     }
     
-    private async storeWorkerResult(pageIndex: PageIndex, urls: string[]) {
+    private async storeWorkerResult(pageIndex: PageIndex, result: WorkerResult) {
+        await Promise.all([
+            this.storeLinks(pageIndex, result.links),
+            this.storeWords(pageIndex, result.words)
+        ])
+    }
+
+    private async storeLinks(pageIndex: PageIndex, urls: string[]) {
         for (let url of urls) {
             await LinksRepository.create({
                 from_page_index_id: pageIndex.id,
@@ -104,6 +114,16 @@ export default class Coordinator {
                 await IndexQueueRepository.add({ url })
             }
         }
+    }
+
+    private async storeWords(pageIndex: PageIndex, words: string[]) {
+        await Promise.all(words.map(async (word, i) => {
+            await WordsRepository.create({
+                pageIndex,
+                word,
+                position: i
+            })
+        }))
     }
 
     private async isKnownUrl(url: string) {

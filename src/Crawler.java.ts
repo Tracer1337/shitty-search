@@ -1,12 +1,13 @@
 import fetch, { Response } from "node-fetch"
 import config from "../config.json"
 import Parser from "./Parser.java"
+import WorkerResult from "./structures/WorkerResult.java"
 
 export default class Crawler {
     public static async main(args: string[]) {
         const crawler = new Crawler(config.entrypoint)
-        const links = await crawler.crawl()
-        console.log(links)
+        const result = await crawler.crawl()
+        console.log(result)
     }
 
     constructor(private url: string) {}
@@ -31,14 +32,19 @@ export default class Crawler {
     }
 
     public async crawl() {
-        const result = await fetch(this.url)
+        const response = await fetch(this.url)
 
-        if (!this.shouldCrawl(result)) {
+        if (!this.shouldCrawl(response)) {
             return null
         }
 
-        const html = await result.text()
+        const html = await response.text()
         const parser = new Parser(html)
-        return parser.getLinks()
+        const result = new WorkerResult({
+            links: Array.from(parser.getLinks()),
+            words: parser.getWords()
+        })
+
+        return result
     }
 }

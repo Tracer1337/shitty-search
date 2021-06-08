@@ -24,7 +24,8 @@ export default class Database {
             CREATE TABLE words (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 page_index_id int NOT NULL REFERENCES page_index(id),
-                word varchar(255) NOT NULL
+                word varchar(255) NOT NULL,
+                position int NOT NULL
             );
         `,
         "index_queue": `
