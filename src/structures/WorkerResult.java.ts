@@ -1,6 +1,6 @@
 export default class WorkerResult {
-    links: string[]
-    words: string[]
+    public links: string[]
+    public words: string[]
 
     constructor(values: {
         links: string[],

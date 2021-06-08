@@ -1,7 +1,7 @@
 export default class Link {
-    id: number
-    from_page_index_id: number
-    to_url: string
+    public id: number
+    public from_page_index_id: number
+    public to_url: string
 
     constructor(values: {
         id: number,

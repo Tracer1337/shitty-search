@@ -1,8 +1,8 @@
 export default class Word {
-    id: number
-    page_index_id: number
-    word: string
-    position: number
+    public id: number
+    public page_index_id: number
+    public word: string
+    public position: number
     
     constructor(values: {
         id: number,

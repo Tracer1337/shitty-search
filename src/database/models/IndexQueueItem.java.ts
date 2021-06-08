@@ -1,6 +1,6 @@
 export default class IndexQueueItem {
-    id: number
-    url: string
+    public id: number
+    public url: string
 
     constructor(values: {
         id: number,
