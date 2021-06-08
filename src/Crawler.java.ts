@@ -1,11 +1,13 @@
 import fetch, { Response } from "node-fetch"
-import config from "../config.json"
+import Config from "./Config.java"
 import Parser from "./Parser.java"
 import WorkerResult from "./structures/WorkerResult.java"
 
 export default class Crawler {
+    private static readonly ALLOWED_CONTENT_TYPES = ["text/html"]
+
     public static async main(args: string[]) {
-        const crawler = new Crawler(config.entrypoint)
+        const crawler = new Crawler(Config.ENTRYPOINT)
         const result = await crawler.crawl()
         console.log(result)
     }
@@ -26,7 +28,7 @@ export default class Crawler {
     }
 
     private matchContentType(contentType: string) {
-        return config.allowedContentTypes.some(
+        return Crawler.ALLOWED_CONTENT_TYPES.some(
             (mime) => contentType.startsWith(mime)
         )
     }

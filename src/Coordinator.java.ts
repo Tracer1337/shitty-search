@@ -3,9 +3,9 @@ import os from "os"
 import Queue from "./Queue.java"
 import Worker from "./Worker.java"
 import Database from "./database/Database.java"
+import Config from "./Config.java"
 import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
 import IPCMessage from "./structures/IPCMessage.java"
-import config from "../config.json"
 import LinksRepository from "./database/repositories/LinksRepository.java"
 import PageIndex from "./database/models/PageIndex.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
@@ -39,9 +39,9 @@ export default class Coordinator {
     public async run() {
         await Database.migrate()
 
-        const entrypointIsKnown = await this.isKnownUrl(config.entrypoint)
+        const entrypointIsKnown = await this.isKnownUrl(Config.ENTRYPOINT)
         if (!entrypointIsKnown) {
-            await IndexQueueRepository.add({ url: config.entrypoint })
+            await IndexQueueRepository.add({ url: Config.ENTRYPOINT })
         }
 
         this.createWorkers()
