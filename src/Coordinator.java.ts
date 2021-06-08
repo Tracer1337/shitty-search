@@ -4,7 +4,7 @@ import Queue from "./Queue.java"
 import Worker from "./Worker.java"
 import Database from "./database/Database.java"
 import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
-import { IPCMessage } from "./types"
+import IPCMessage from "./structures/IPCMessage.java"
 import config from "../config.json"
 import LinksRepository from "./database/repositories/LinksRepository.java"
 import PageIndex from "./database/models/PageIndex.java"
@@ -66,18 +66,19 @@ export default class Coordinator {
                 return
             }
 
-            const message: IPCMessage = {
+            const message = new IPCMessage({
                 command: "master.task",
                 data: indexQueueItem.url
-            }
+            })
             worker.send(message)
 
             this.workerQueue.remove(worker)
         }
     }
 
-    private async handleWorkerMessage(worker: WorkerProcess, message: IPCMessage) {
-        if (message.command === "worker.result") {
+    private async handleWorkerMessage(worker: WorkerProcess, rawMessage: IPCMessage) {
+        if (rawMessage.command === "worker.result") {
+            const message = new IPCMessage<"worker.result">(rawMessage)
             try {
                 const pageIndex = await PageIndexRepository.create({ url: message.data.source })
                 if (message.data.result !== null) {
