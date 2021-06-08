@@ -4,7 +4,7 @@ import PageIndex from "../models/PageIndex.java";
 import Word from "../models/Word.java";
 
 export default class WordsRepository {
-    private static table = "words"
+    private static readonly TABLE = "words"
 
     public static async create(values: {
         pageIndex: PageIndex,
@@ -18,7 +18,7 @@ export default class WordsRepository {
             position: values.position
         })
         const result = await Database.getConnection().query(`
-            INSERT INTO ${this.table} (page_index_id, word, position)
+            INSERT INTO ${this.TABLE} (page_index_id, word, position)
             VALUES ('${word.page_index_id}', '${word.word}', '${word.position}')
         `)
         const headers = result[0] as ResultSetHeader

@@ -1,8 +1,8 @@
 import WorkerResult from "./WorkerResult.java"
 
 export default class IPCMessage<T extends "master.task" | "worker.result" = never>{
-    command: T
-    data: T extends "master.task"
+    public command: T
+    public data: T extends "master.task"
         ? string
         : T extends "worker.result"
         ? {

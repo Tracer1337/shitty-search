@@ -1,11 +1,11 @@
 import cheerio, { CheerioAPI } from "cheerio"
 
 export default class Parser {
-    private static urlMaxLength = 255
-    private static wordMinLength = 2
-    private static wordMaxLength = 255
-    private static maxWords = 1e4
-    private static ignoreTags = [
+    private static readonly URL_MAX_LENGTH = 255
+    private static readonly WORD_MIN_LENGTH = 2
+    private static readonly WORD_MAX_LENGTH = 255
+    private static readonly MAX_WORDS = 1e4
+    private static readonly IGNORE_TAGS = [
         "style",
         "script",
         "noscript",
@@ -39,7 +39,7 @@ export default class Parser {
             }
 
             const tagName = (handle.prop("tagName") as string)?.toLowerCase()
-            if (Parser.ignoreTags.includes(tagName)) {
+            if (Parser.IGNORE_TAGS.includes(tagName)) {
                 return
             }
 
@@ -47,12 +47,12 @@ export default class Parser {
             const nodeWords = text
                 .split(/[^\d\w-]/)
                 .filter((word) => (
-                    word.length >= Parser.wordMinLength &&
-                    word.length <= Parser.wordMaxLength
+                    word.length >= Parser.WORD_MIN_LENGTH &&
+                    word.length <= Parser.WORD_MAX_LENGTH
                 ))
 
             let i = 0
-            while (words.length <= Parser.maxWords && nodeWords[i]) {
+            while (words.length <= Parser.MAX_WORDS && nodeWords[i]) {
                 words.push(nodeWords[i++])
             }
         })
@@ -71,7 +71,7 @@ export default class Parser {
     }
 
     private isHttpUrl(urlString: string) {
-        if (urlString.length > Parser.urlMaxLength) {
+        if (urlString.length > Parser.URL_MAX_LENGTH) {
             return false
         }
         try {

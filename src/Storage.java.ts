@@ -2,8 +2,8 @@ import fs from "fs"
 import path from "path"
 
 export default class Storage {
-    private static rootDir = path.join(__dirname, "..")
-    private static storageDirName = "storage"
+    private static readonly ROOT_DIR = path.join(__dirname, "..")
+    private static readonly STORAGE_DIR_NAME = "storage"
 
     private filepath: string
     
@@ -31,7 +31,7 @@ export default class Storage {
 
     private getFilePath(filename?: string) {
         return filename
-            ? path.join(Storage.rootDir, Storage.storageDirName, filename)
-            : path.join(Storage.rootDir, Storage.storageDirName)
+            ? path.join(Storage.ROOT_DIR, Storage.STORAGE_DIR_NAME, filename)
+            : path.join(Storage.ROOT_DIR, Storage.STORAGE_DIR_NAME)
     }
 }
