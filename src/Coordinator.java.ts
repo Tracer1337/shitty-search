@@ -13,6 +13,7 @@ import PageIndexRepository from "./database/repositories/PageIndexRepository.jav
 import LinksRepository from "./database/repositories/LinksRepository.java"
 import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
+import BusyTasksHandler from "./redis/handlers/BusyTasksHandler.java"
 
 export default class Coordinator {
     private static nThreads = os.cpus().length
@@ -35,7 +36,6 @@ export default class Coordinator {
         timeout: Config.TIMEOUT,
         onRelease: this.supplyWorkers.bind(this)
     })
-    private tasksDone = 0
 
     constructor() {
         cluster.on("exit", this.handleWorkerExit.bind(this))
@@ -77,6 +77,7 @@ export default class Coordinator {
                 return
             }
 
+            await BusyTasksHandler.create(indexQueueItem.url)
             const message = new IPCMessage({
                 command: "master.task",
                 data: indexQueueItem.url
@@ -91,6 +92,7 @@ export default class Coordinator {
     private async handleWorkerMessage(worker: WorkerProcess, rawMessage: IPCMessage) {
         if (rawMessage.command === "worker.result") {
             const message = new IPCMessage<"worker.result">(rawMessage)
+            
             try {
                 const pageIndex = await PageIndexRepository.create({ url: message.data.source })
                 if (message.data.result !== null) {
@@ -99,7 +101,10 @@ export default class Coordinator {
                 }
             } catch (error) {
                 await this.logStorage.store(`${error.stack}\n\n`)
+            } finally {
+                await BusyTasksHandler.remove(message.data.source)
             }
+
             this.workerQueue.add(worker)
             this.supplyWorkers()
         }
@@ -144,10 +149,17 @@ export default class Coordinator {
         if (isQueued) {
             return true
         }
+
         const isIndexed = await PageIndexRepository.isIndexed(url)
         if (isIndexed) {
             return true
         }
+
+        const isBusy = await BusyTasksHandler.isBusy(url)
+        if (isBusy) {
+            return true
+        }
+
         return false
     }
 }

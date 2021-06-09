@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/redis": "^2.8.29",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
   },
@@ -20,6 +21,7 @@
     "cheerio": "*",
     "commander": "^7.2.0",
     "mysql2": "^2.2.5",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "redis": "^3.1.2"
   }
 }
