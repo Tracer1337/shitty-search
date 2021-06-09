@@ -1,17 +1,18 @@
 import cluster, { Worker as WorkerProcess } from "cluster"
 import os from "os"
 import Queue from "./Queue.java"
+import Throttle from "./Throttle.java"
 import Worker from "./Worker.java"
-import Database from "./database/Database.java"
 import Config from "./Config.java"
-import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
-import IPCMessage from "./structures/IPCMessage.java"
-import LinksRepository from "./database/repositories/LinksRepository.java"
-import PageIndex from "./database/models/PageIndex.java"
-import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import Storage from "./Storage.java"
+import IPCMessage from "./structures/IPCMessage.java"
 import WorkerResult from "./structures/WorkerResult.java"
+import Database from "./database/Database.java"
+import PageIndex from "./database/models/PageIndex.java"
+import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
+import LinksRepository from "./database/repositories/LinksRepository.java"
 import WordsRepository from "./database/repositories/WordsRepository.java"
+import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 
 export default class Coordinator {
     private static nThreads = os.cpus().length
@@ -29,6 +30,12 @@ export default class Coordinator {
 
     private workerQueue = new Queue<WorkerProcess>()
     private logStorage = new Storage("logs.txt")
+    private throttle = new Throttle({
+        iterations: Config.ITERATIONS,
+        timeout: Config.TIMEOUT,
+        onRelease: this.supplyWorkers.bind(this)
+    })
+    private tasksDone = 0
 
     constructor() {
         cluster.on("exit", this.handleWorkerExit.bind(this))
@@ -56,6 +63,10 @@ export default class Coordinator {
 
     private async supplyWorkers() {
         for (let worker of this.workerQueue) {
+            if (this.throttle.isThrottled) {
+                return
+            }
+
             if (!worker.isConnected()) {
                 continue
             }
@@ -71,6 +82,7 @@ export default class Coordinator {
                 data: indexQueueItem.url
             })
             worker.send(message)
+            this.throttle.tick()
 
             this.workerQueue.remove(worker)
         }
