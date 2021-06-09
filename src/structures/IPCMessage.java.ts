@@ -17,5 +17,12 @@ export default class IPCMessage<T extends "master.task" | "worker.result" = neve
     }) {
         this.command = values.command
         this.data = values.data
+
+        if (this.command === "worker.result") {
+            const data = this.data as IPCMessage<"worker.result">["data"]
+            if (data.result !== null) {
+                data.result = new WorkerResult(data.result)
+            }
+        }
     }
 }

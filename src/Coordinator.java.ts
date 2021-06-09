@@ -96,8 +96,7 @@ export default class Coordinator {
             try {
                 const pageIndex = await PageIndexRepository.create({ url: message.data.source })
                 if (message.data.result !== null) {
-                    const result = new WorkerResult(message.data.result)
-                    await this.storeWorkerResult(pageIndex, result)
+                    await this.storeWorkerResult(pageIndex, message.data.result)
                 }
             } catch (error) {
                 await this.logStorage.store(`${error.stack}\n\n`)
