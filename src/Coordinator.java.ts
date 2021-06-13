@@ -31,6 +31,7 @@ export default class Coordinator {
     }
 
     private workerQueue = new Queue<WorkerProcess>()
+    private isSupplyingWorkers = false
     private logStorage = new Storage("logs.txt")
     private throttle = new Throttle({
         iterations: Config.ITERATIONS,
@@ -63,19 +64,29 @@ export default class Coordinator {
     }
 
     private async supplyWorkers() {
-        for (let worker of this.workerQueue) {
+        if (this.isSupplyingWorkers) {
+            return
+        }
+
+        this.isSupplyingWorkers = true
+
+        while (this.workerQueue.size() > 0) {
             if (this.throttle.isThrottled) {
-                return
+                break
             }
 
+            const worker = this.workerQueue.poll()
+
             if (!worker.isConnected()) {
+                this.workerQueue.add(worker)
                 continue
             }
 
             const indexQueueItem = await IndexQueueRepository.poll()
 
             if (!indexQueueItem) {
-                return
+                this.workerQueue.putBack(worker)
+                break
             }
 
             await BusyTasksHandler.create(indexQueueItem.url)
@@ -88,6 +99,8 @@ export default class Coordinator {
 
             this.workerQueue.remove(worker)
         }
+
+        this.isSupplyingWorkers = false
     }
 
     private async handleWorkerMessage(worker: WorkerProcess, rawMessage: ResultMessage) {
@@ -100,10 +113,9 @@ export default class Coordinator {
             }
         } catch (error) {
             await this.logStorage.store(`${error.stack}\n\n`)
-        } finally {
-            await BusyTasksHandler.remove(message.data.source)
         }
-
+        
+        await BusyTasksHandler.remove(message.data.source)
         this.workerQueue.add(worker)
         this.supplyWorkers()
     }

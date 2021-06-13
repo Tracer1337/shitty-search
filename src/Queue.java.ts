@@ -7,6 +7,10 @@ export default class Queue<T> extends Array<T> {
         return this.shift()
     }
 
+    public putBack(item: T) {
+        return this.unshift(item)
+    }
+
     public remove(item: T) {
         const index = this.indexOf(item)
         if (index !== -1) {
