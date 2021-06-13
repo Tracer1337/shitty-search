@@ -1,5 +1,4 @@
 import cluster, { Worker as WorkerProcess } from "cluster"
-import os from "os"
 import Queue from "./Queue.java"
 import Throttle from "./Throttle.java"
 import Worker from "./Worker.java"
@@ -17,8 +16,6 @@ import ResultMessage from "./structures/ResultMessage.java"
 import TaskMessage from "./structures/TaskMessage.java"
 
 export default class Coordinator {
-    private static nThreads = os.cpus().length
-
     public static main(args: string[]) {
         if (cluster.isMaster) {
             const coordinator = new Coordinator()
@@ -57,7 +54,7 @@ export default class Coordinator {
     }
 
     private createWorkers() {
-        for (let i = 0; i < Coordinator.nThreads; i++) {
+        for (let i = 0; i < Config.THREADS; i++) {
             const worker = cluster.fork()
             this.workerQueue.add(worker)
         }

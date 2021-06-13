@@ -1,5 +1,8 @@
+import os from "os"
+
 export default class Config {
     public static readonly ENTRYPOINT = "https://easymeme69.com"
-    public static readonly ITERATIONS = 20
-    public static readonly TIMEOUT = 5000
+    public static readonly ITERATIONS = 1000
+    public static readonly TIMEOUT = 1000
+    public static readonly THREADS = os.cpus().length
 }
