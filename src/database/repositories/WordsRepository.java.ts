@@ -10,6 +10,10 @@ export default class WordsRepository {
         word: string,
         position: number
     }[]) {
+        if (items.length === 0) {
+            return
+        }
+
         const words = items.map((values) =>
             new Word({
                 id: null,
@@ -18,9 +22,11 @@ export default class WordsRepository {
                 position: values.position
             })
         )
+
         const tuples = words.map((word) =>
             `('${word.page_index_id}', '${word.word}', '${word.position}')`
         )
+        
         await Database.getConnection().query(`
             INSERT INTO ${this.TABLE} (page_index_id, word, position)
             VALUES ${tuples.join(", ")}
