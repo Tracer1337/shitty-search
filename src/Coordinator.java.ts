@@ -5,7 +5,6 @@ import Throttle from "./Throttle.java"
 import Worker from "./Worker.java"
 import Config from "./Config.java"
 import Storage from "./Storage.java"
-import IPCMessage from "./structures/IPCMessage.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Database from "./database/Database.java"
 import PageIndex from "./database/models/PageIndex.java"
@@ -14,6 +13,8 @@ import LinksRepository from "./database/repositories/LinksRepository.java"
 import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import BusyTasksHandler from "./redis/handlers/BusyTasksHandler.java"
+import ResultMessage from "./structures/ResultMessage.java"
+import TaskMessage from "./structures/TaskMessage.java"
 
 export default class Coordinator {
     private static nThreads = os.cpus().length
@@ -78,7 +79,7 @@ export default class Coordinator {
             }
 
             await BusyTasksHandler.create(indexQueueItem.url)
-            const message = new IPCMessage({
+            const message = new TaskMessage({
                 command: "master.task",
                 data: indexQueueItem.url
             })
@@ -89,24 +90,22 @@ export default class Coordinator {
         }
     }
 
-    private async handleWorkerMessage(worker: WorkerProcess, rawMessage: IPCMessage) {
-        if (rawMessage.command === "worker.result") {
-            const message = new IPCMessage<"worker.result">(rawMessage)
+    private async handleWorkerMessage(worker: WorkerProcess, rawMessage: ResultMessage) {
+        const message = new ResultMessage(rawMessage)
 
-            try {
-                const pageIndex = await PageIndexRepository.create({ url: message.data.source })
-                if (message.data.result !== null) {
-                    await this.storeWorkerResult(pageIndex, message.data.result)
-                }
-            } catch (error) {
-                await this.logStorage.store(`${error.stack}\n\n`)
-            } finally {
-                await BusyTasksHandler.remove(message.data.source)
+        try {
+            const pageIndex = await PageIndexRepository.create({ url: message.data.source })
+            if (message.data.result !== null) {
+                await this.storeWorkerResult(pageIndex, message.data.result)
             }
-
-            this.workerQueue.add(worker)
-            this.supplyWorkers()
+        } catch (error) {
+            await this.logStorage.store(`${error.stack}\n\n`)
+        } finally {
+            await BusyTasksHandler.remove(message.data.source)
         }
+
+        this.workerQueue.add(worker)
+        this.supplyWorkers()
     }
 
     private handleWorkerExit(worker: WorkerProcess, code: number, signal: string) {

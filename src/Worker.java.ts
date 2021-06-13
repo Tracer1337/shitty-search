@@ -1,14 +1,15 @@
 import Crawler from "./Crawler.java"
-import IPCMessage from "./structures/IPCMessage.java"
+import ResultMessage from "./structures/ResultMessage.java"
+import TaskMessage from "./structures/TaskMessage.java"
 
 export default class Worker {
     constructor() {
         process.on("message", this.handleMasterMessage.bind(this))
     }
 
-    private handleMasterMessage(rawMessage: IPCMessage) {
+    private handleMasterMessage(rawMessage: TaskMessage) {
         if (rawMessage.command === "master.task") {
-            const message = new IPCMessage<"master.task">(rawMessage)
+            const message = new TaskMessage(rawMessage)
             this.handleTask(message.data)
         }
     }
@@ -16,7 +17,7 @@ export default class Worker {
     private async handleTask(url: string) {
         const crawler = new Crawler(url)
         const result = await crawler.crawl()
-        const message = new IPCMessage({
+        const message = new ResultMessage({
             command: "worker.result",
             data: { source: url, result }
         })
