@@ -92,7 +92,7 @@ export default class Coordinator {
     private async handleWorkerMessage(worker: WorkerProcess, rawMessage: IPCMessage) {
         if (rawMessage.command === "worker.result") {
             const message = new IPCMessage<"worker.result">(rawMessage)
-            
+
             try {
                 const pageIndex = await PageIndexRepository.create({ url: message.data.source })
                 if (message.data.result !== null) {
@@ -121,11 +121,13 @@ export default class Coordinator {
     }
 
     private async storeLinks(pageIndex: PageIndex, urls: string[]) {
-        for (let url of urls) {
-            await LinksRepository.create({
+        await LinksRepository.createMany(
+            urls.map((url) => ({
                 from_page_index_id: pageIndex.id,
                 to_url: url
-            })
+            }))
+        )
+        for (let url of urls) {
             const isKnownUrl = await this.isKnownUrl(url)
             if (!isKnownUrl) {
                 await IndexQueueRepository.add({ url })
@@ -134,13 +136,13 @@ export default class Coordinator {
     }
 
     private async storeWords(pageIndex: PageIndex, words: string[]) {
-        await Promise.all(words.map(async (word, i) => {
-            await WordsRepository.create({
+        await WordsRepository.createMany(
+            words.map((word, i) => ({
                 pageIndex,
                 word,
                 position: i
-            })
-        }))
+            }))
+        )
     }
 
     private async isKnownUrl(url: string) {
