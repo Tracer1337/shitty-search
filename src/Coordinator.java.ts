@@ -1,7 +1,6 @@
-import cluster, { Worker as WorkerProcess } from "cluster"
-import Queue from "./Queue.java"
-import Throttle from "./Throttle.java"
+import cluster from "cluster"
 import Worker from "./Worker.java"
+import WorkerPool from "./WorkerPool.java"
 import Config from "./Config.java"
 import Storage from "./Storage.java"
 import WorkerResult from "./structures/WorkerResult.java"
@@ -12,8 +11,6 @@ import LinksRepository from "./database/repositories/LinksRepository.java"
 import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import BusyTasksHandler from "./redis/handlers/BusyTasksHandler.java"
-import ResultMessage from "./structures/ResultMessage.java"
-import TaskMessage from "./structures/TaskMessage.java"
 
 export default class Coordinator {
     public static main(args: string[]) {
@@ -27,19 +24,16 @@ export default class Coordinator {
         }
     }
 
-    private workerQueue = new Queue<WorkerProcess>()
-    private isSupplyingWorkers = false
-    private logStorage = new Storage("logs.txt")
-    private throttle = new Throttle({
-        iterations: Config.ITERATIONS,
-        timeout: Config.TIMEOUT,
-        onRelease: this.supplyWorkers.bind(this)
+    private workerPool = new WorkerPool({
+        throttle: {
+            iterations: Config.ITERATIONS,
+            timeout: Config.TIMEOUT
+        }
     })
+    private logStorage = new Storage("logs.txt")
 
     constructor() {
-        cluster.on("exit", this.handleWorkerExit.bind(this))
-        cluster.on("message", this.handleWorkerMessage.bind(this))
-        cluster.on("online", this.supplyWorkers.bind(this))
+        this.workerPool.on("result", this.handleResult.bind(this))
     }
 
     public async run() {
@@ -50,78 +44,24 @@ export default class Coordinator {
             await IndexQueueRepository.add({ url: Config.ENTRYPOINT })
         }
 
-        this.createWorkers()
+        this.workerPool.createWorkers(Config.THREADS)
     }
 
-    private createWorkers() {
-        for (let i = 0; i < Config.THREADS; i++) {
-            const worker = cluster.fork()
-            this.workerQueue.add(worker)
-        }
-    }
-
-    private async supplyWorkers() {
-        if (this.isSupplyingWorkers) {
-            return
-        }
-
-        this.isSupplyingWorkers = true
-
-        while (this.workerQueue.size() > 0) {
-            if (this.throttle.isThrottled) {
-                break
-            }
-
-            const worker = this.workerQueue.poll()
-
-            if (!worker.isConnected()) {
-                this.workerQueue.add(worker)
-                continue
-            }
-
-            const indexQueueItem = await IndexQueueRepository.poll()
-
-            if (!indexQueueItem) {
-                this.workerQueue.putBack(worker)
-                break
-            }
-
-            await BusyTasksHandler.create(indexQueueItem.url)
-            const message = new TaskMessage({
-                command: "master.task",
-                data: indexQueueItem.url
-            })
-            worker.send(message)
-            this.throttle.tick()
-
-            this.workerQueue.remove(worker)
-        }
-
-        this.isSupplyingWorkers = false
-    }
-
-    private async handleWorkerMessage(worker: WorkerProcess, rawMessage: ResultMessage) {
-        const message = new ResultMessage(rawMessage)
-
+    private async handleResult({ source, result }: {
+        source: string,
+        result: WorkerResult | null
+    }) {
         try {
-            const pageIndex = await PageIndexRepository.create({ url: message.data.source })
-            if (message.data.result !== null) {
-                await this.storeWorkerResult(pageIndex, message.data.result)
+            const pageIndex = await PageIndexRepository.create({ url: source })
+            if (result !== null) {
+                await this.storeResult(pageIndex, result)
             }
         } catch (error) {
             await this.logStorage.store(`${error.stack}\n\n`)
         }
-        
-        await BusyTasksHandler.remove(message.data.source)
-        this.workerQueue.add(worker)
-        this.supplyWorkers()
-    }
-
-    private handleWorkerExit(worker: WorkerProcess, code: number, signal: string) {
-        console.log(`Worker ${worker.process.pid} died: ${code || signal}`)
     }
     
-    private async storeWorkerResult(pageIndex: PageIndex, result: WorkerResult) {
+    private async storeResult(pageIndex: PageIndex, result: WorkerResult) {
         await Promise.all([
             this.storeLinks(pageIndex, result.links),
             this.storeWords(pageIndex, result.words)
