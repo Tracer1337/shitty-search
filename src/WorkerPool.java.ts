@@ -10,10 +10,13 @@ import TaskMessage from "./structures/TaskMessage.java"
 export default class WorkerPool extends AsyncEventEmitter {
     private workers = new Set<WorkerProcess>()
     private workerQueue = new Queue<WorkerProcess>()
+    private workerTasks = new Map<WorkerProcess, number>()
     private isSupplyingWorkers = false
     private throttle: Throttle
+    private tasksPerWorker: number
 
     constructor(props: {
+        tasksPerWorker: number,
         throttle: {
             iterations: number,
             timeout: number
@@ -21,6 +24,7 @@ export default class WorkerPool extends AsyncEventEmitter {
     }) {
         super()
 
+        this.tasksPerWorker = props.tasksPerWorker
         this.throttle = new Throttle({
             iterations: props.throttle.iterations,
             timeout: props.throttle.timeout,
@@ -37,6 +41,7 @@ export default class WorkerPool extends AsyncEventEmitter {
             const worker = cluster.fork()
             this.workers.add(worker)
             this.workerQueue.add(worker)
+            this.workerTasks.set(worker, 0)
         }
     }
 
@@ -58,22 +63,37 @@ export default class WorkerPool extends AsyncEventEmitter {
                 continue
             }
 
-            const indexQueueItem = await IndexQueueRepository.poll()
-            if (!indexQueueItem) {
+            const amountTasks = this.tasksPerWorker - this.workerTasks.get(worker)
+
+            const indexQueueItems = await IndexQueueRepository.poll(amountTasks)
+            if (indexQueueItems.length === 0) {
                 this.workerQueue.putBack(worker)
                 break
             }
 
-            await BusyTasksHandler.create(indexQueueItem.url)
-            const message = new TaskMessage({
-                command: "master.task",
-                data: indexQueueItem.url
-            })
-            worker.send(message)
-            this.throttle.tick()
+            await Promise.all(indexQueueItems.map(
+                (item) => this.sendTaskToWorker(worker, item.url)
+            ))
         }
 
         this.isSupplyingWorkers = false
+    }
+
+    private async sendTaskToWorker(worker: WorkerProcess, task: string) {
+        await BusyTasksHandler.create(task)
+        this.updateWorkerTasks(worker, 1)
+
+        const message = new TaskMessage({
+            command: "master.task",
+            data: task
+        })
+        worker.send(message)
+
+        this.throttle.tick()
+    }
+
+    private updateWorkerTasks(worker: WorkerProcess, delta: number) {
+        this.workerTasks.set(worker, this.workerTasks.get(worker) + delta)
     }
 
     private async handleWorkerOnline(worker: WorkerProcess) {
@@ -87,8 +107,12 @@ export default class WorkerPool extends AsyncEventEmitter {
         if (!this.isOwnWorker(worker)) {
             return
         }
+
         const message = new ResultMessage(rawMessage)
+
         await BusyTasksHandler.remove(message.data.source)
+        this.updateWorkerTasks(worker, -1)
+
         await this.emit("result", message.data)
         this.workerQueue.add(worker)
         this.supplyWorkers()

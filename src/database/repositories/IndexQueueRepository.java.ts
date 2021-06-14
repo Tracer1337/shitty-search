@@ -18,20 +18,24 @@ export default class IndexQueueRepository {
         return indexQueueItem
     }
 
-    public static async poll() {
+    public static async poll(amount = 1) {
         const result = await Database.getConnection().query(`
-            SELECT * FROM ${this.TABLE} ORDER BY id ASC LIMIT 1
+            SELECT * FROM ${this.TABLE} ORDER BY id ASC LIMIT ${amount}
         `)
-        const [row] = result[0] as RowDataPacket[]
-        if (!row) {
-            return null
+        const rows = result[0] as RowDataPacket[]
+        if (rows.length === 0) {
+            return []
         }
-        const indexQueueItem = new IndexQueueItem({
-            id: row.id,
-            url: row.url
-        })
-        await this.remove(indexQueueItem)
-        return indexQueueItem
+        const indexQueueItems = rows.map((row) =>
+            new IndexQueueItem({
+                id: row.id,
+                url: row.url
+            })
+        )
+        await Promise.all(indexQueueItems.map((indexQueueItem) =>
+            this.remove(indexQueueItem)
+        ))
+        return indexQueueItems
     }
 
     public static async has(url: string) {

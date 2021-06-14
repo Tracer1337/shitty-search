@@ -16,8 +16,11 @@ export default class Throttle {
     }
 
     public tick() {
+        if (this.isThrottled) {
+            return
+        }
         this.currentTick++
-        if (this.currentTick === this.iterations && !this.isThrottled) {
+        if (this.currentTick === this.iterations) {
             this.throttle()
         }
     }

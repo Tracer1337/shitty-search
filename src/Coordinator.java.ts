@@ -25,6 +25,7 @@ export default class Coordinator {
     }
 
     private workerPool = new WorkerPool({
+        tasksPerWorker: Config.TASKS_PER_THREAD,
         throttle: {
             iterations: Config.ITERATIONS,
             timeout: Config.TIMEOUT
