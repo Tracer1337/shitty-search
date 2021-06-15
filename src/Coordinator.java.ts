@@ -36,6 +36,7 @@ export default class Coordinator {
 
     constructor(private ui: TerminalUI) {
         this.workerPool.on("result", this.handleResult.bind(this))
+        this.workerPool.on("updateWorkers", this.updateWorkersUI.bind(this))
     }
 
     public async run() {
@@ -60,7 +61,6 @@ export default class Coordinator {
                 await this.storeResult(pageIndex, result)
             }
         })
-        this.updateWorkersUI()
     }
 
     private async storeResult(pageIndex: PageIndex, result: WorkerResult) {

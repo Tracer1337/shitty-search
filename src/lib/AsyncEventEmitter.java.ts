@@ -1,7 +1,7 @@
 export default class AsyncEventEmitter {
     private listeners: Record<string, Function[]> = {}
 
-    public async emit(event: string, data: any) {
+    public async emit(event: string, data?: any) {
         const listeners = this.listeners[event]
 
         if (!listeners || listeners.length === 0) {

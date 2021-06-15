@@ -84,6 +84,8 @@ export default class WorkerPool extends AsyncEventEmitter {
         }
 
         this.isSupplyingWorkers = false
+        
+        this.emit("updateWorkers")
     }
 
     private async sendTaskToWorker(worker: WorkerProcess, task: string) {
