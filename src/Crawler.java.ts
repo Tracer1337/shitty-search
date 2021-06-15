@@ -1,5 +1,6 @@
 import fetch, { Response } from "node-fetch"
 import Config from "./Config.java"
+import ErrorHandler from "./ErrorHandler.java"
 import Parser from "./Parser.java"
 import WorkerResult from "./structures/WorkerResult.java"
 
@@ -34,7 +35,14 @@ export default class Crawler {
     }
 
     public async crawl() {
-        const response = await fetch(this.url)
+        let response: Response
+
+        try {
+            response = await fetch(this.url)
+        } catch (error) {
+            ErrorHandler.handleError(error)
+            return null
+        }
 
         if (!this.shouldCrawl(response)) {
             return null

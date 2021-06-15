@@ -2,7 +2,6 @@ import cluster from "cluster"
 import Worker from "./Worker.java"
 import WorkerPool from "./WorkerPool.java"
 import Config from "./Config.java"
-import Storage from "./Storage.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Database from "./database/Database.java"
 import PageIndex from "./database/models/PageIndex.java"
@@ -12,6 +11,7 @@ import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import TerminalUI from "./terminal/TerminalUI"
 import WorkerState from "./terminal/state/WorkerState.java"
+import ErrorHandler from "./ErrorHandler.java"
 
 export default class Coordinator {
     public static main(args: string[]) {
@@ -33,7 +33,6 @@ export default class Coordinator {
             timeout: Config.TIMEOUT
         }
     })
-    private logStorage = new Storage("logs.txt")
 
     constructor(private ui: TerminalUI) {
         this.workerPool.on("result", this.handleResult.bind(this))
@@ -55,14 +54,12 @@ export default class Coordinator {
         source: string,
         result: WorkerResult | null
     }) {
-        try {
+        await ErrorHandler.withErrorHandlerAsync(async () => {
             const pageIndex = await PageIndexRepository.create({ url: source })
             if (result !== null) {
                 await this.storeResult(pageIndex, result)
             }
-        } catch (error) {
-            await this.logStorage.store(`${error.stack}\n\n`)
-        }
+        })
         this.updateWorkersUI()
     }
 
