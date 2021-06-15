@@ -10,11 +10,14 @@ import PageIndexRepository from "./database/repositories/PageIndexRepository.jav
 import LinksRepository from "./database/repositories/LinksRepository.java"
 import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
+import TerminalUI from "./terminal/TerminalUI"
+import WorkerState from "./terminal/state/WorkerState.java"
 
 export default class Coordinator {
     public static main(args: string[]) {
         if (cluster.isMaster) {
-            const coordinator = new Coordinator()
+            const ui = new TerminalUI()
+            const coordinator = new Coordinator(ui)
             coordinator.run()
         }
 
@@ -32,7 +35,7 @@ export default class Coordinator {
     })
     private logStorage = new Storage("logs.txt")
 
-    constructor() {
+    constructor(private ui: TerminalUI) {
         this.workerPool.on("result", this.handleResult.bind(this))
     }
 
@@ -45,6 +48,7 @@ export default class Coordinator {
         }
 
         this.workerPool.createWorkers(Config.THREADS)
+        this.updateWorkersUI()
     }
 
     private async handleResult({ source, result }: {
@@ -59,8 +63,9 @@ export default class Coordinator {
         } catch (error) {
             await this.logStorage.store(`${error.stack}\n\n`)
         }
+        this.updateWorkersUI()
     }
-    
+
     private async storeResult(pageIndex: PageIndex, result: WorkerResult) {
         await Promise.all([
             this.storeLinks(pageIndex, result.links),
@@ -105,5 +110,16 @@ export default class Coordinator {
         }
 
         return false
+    }
+
+    private updateWorkersUI() {
+        const workers = this.workerPool.getWorkers()
+        const state = workers.map((worker) =>
+            new WorkerState({
+                id: worker.id,
+                tasks: this.workerPool.getWorkerTasks(worker)
+            })
+        )
+        this.ui.setWorkerState(state)
     }
 }

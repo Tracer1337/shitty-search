@@ -44,6 +44,14 @@ export default class WorkerPool extends AsyncEventEmitter {
         }
     }
 
+    public getWorkers() {
+        return Array.from(this.workers)
+    }
+
+    public getWorkerTasks(worker: WorkerProcess) {
+        return this.workerTasks.get(worker)
+    }
+
     private async supplyWorkers() {
         if (this.isSupplyingWorkers) {
             return

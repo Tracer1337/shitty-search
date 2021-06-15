@@ -13,13 +13,16 @@
   "devDependencies": {
     "@types/node": "^15.12.1",
     "@types/node-fetch": "^2.5.10",
+    "@types/react": "^17.0.11",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"
   },
   "dependencies": {
     "cheerio": "*",
     "commander": "^7.2.0",
+    "ink": "^3.0.8",
     "mysql2": "^2.2.5",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "react": "^16.14.0"
   }
 }

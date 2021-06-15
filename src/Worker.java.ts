@@ -4,10 +4,10 @@ import TaskMessage from "./structures/TaskMessage.java"
 
 export default class Worker {
     constructor() {
-        process.on("message", this.handleMasterMessage.bind(this))
+        process.on("message", this.handleMessage.bind(this))
     }
 
-    private handleMasterMessage(rawMessage: TaskMessage) {
+    private handleMessage(rawMessage: TaskMessage) {
         if (rawMessage.command === "master.task") {
             const message = new TaskMessage(rawMessage)
             this.handleTask(message.data)
