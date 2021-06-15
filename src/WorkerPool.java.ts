@@ -3,7 +3,6 @@ import AsyncEventEmitter from "./lib/AsyncEventEmitter.java"
 import Queue from "./Queue.java"
 import Throttle from "./Throttle.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
-import BusyTasksHandler from "./redis/handlers/BusyTasksHandler.java"
 import ResultMessage from "./structures/ResultMessage.java"
 import TaskMessage from "./structures/TaskMessage.java"
 
@@ -80,7 +79,6 @@ export default class WorkerPool extends AsyncEventEmitter {
     }
 
     private async sendTaskToWorker(worker: WorkerProcess, task: string) {
-        await BusyTasksHandler.create(task)
         this.updateWorkerTasks(worker, 1)
 
         const message = new TaskMessage({
@@ -110,7 +108,6 @@ export default class WorkerPool extends AsyncEventEmitter {
 
         const message = new ResultMessage(rawMessage)
 
-        await BusyTasksHandler.remove(message.data.source)
         this.updateWorkerTasks(worker, -1)
 
         await this.emit("result", message.data)

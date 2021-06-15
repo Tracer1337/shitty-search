@@ -10,7 +10,6 @@ import PageIndexRepository from "./database/repositories/PageIndexRepository.jav
 import LinksRepository from "./database/repositories/LinksRepository.java"
 import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
-import BusyTasksHandler from "./redis/handlers/BusyTasksHandler.java"
 
 export default class Coordinator {
     public static main(args: string[]) {
@@ -102,11 +101,6 @@ export default class Coordinator {
 
         const isIndexed = await PageIndexRepository.isIndexed(url)
         if (isIndexed) {
-            return true
-        }
-
-        const isBusy = await BusyTasksHandler.isBusy(url)
-        if (isBusy) {
             return true
         }
 
