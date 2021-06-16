@@ -4,14 +4,13 @@ import WorkerPool from "./WorkerPool.java"
 import Config from "./Config.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Database from "./database/Database.java"
-import PageIndex from "./database/models/PageIndex.java"
 import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
-import LinksRepository from "./database/repositories/LinksRepository.java"
-import WordsRepository from "./database/repositories/WordsRepository.java"
 import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import TerminalUI from "./terminal/TerminalUI"
 import WorkerState from "./terminal/state/WorkerState.java"
 import ErrorHandler from "./ErrorHandler.java"
+import WorkerResultStorage from "./WorkerResultStorage.java"
+import Utils from "./Utils.java"
 
 export default class Coordinator {
     public static async main(args: string[]) {
@@ -41,7 +40,7 @@ export default class Coordinator {
     }
 
     public async run() {
-        const entrypointIsKnown = await this.isKnownUrl(Config.ENTRYPOINT)
+        const entrypointIsKnown = await Utils.isKnownUrl(Config.ENTRYPOINT)
         if (!entrypointIsKnown) {
             await IndexQueueRepository.add({ url: Config.ENTRYPOINT })
         }
@@ -57,55 +56,10 @@ export default class Coordinator {
         await ErrorHandler.withErrorHandlerAsync(async () => {
             const pageIndex = await PageIndexRepository.create({ url: source })
             if (result !== null) {
-                await this.storeResult(pageIndex, result)
+                const resultStorage = new WorkerResultStorage(pageIndex, result)
+                await resultStorage.storeResult()
             }
         })
-    }
-
-    private async storeResult(pageIndex: PageIndex, result: WorkerResult) {
-        await Promise.all([
-            this.storeLinks(pageIndex, result.links),
-            this.storeWords(pageIndex, result.words)
-        ])
-    }
-
-    private async storeLinks(pageIndex: PageIndex, urls: string[]) {
-        await LinksRepository.createMany(
-            urls.map((url) => ({
-                from_page_index_id: pageIndex.id,
-                to_url: url
-            }))
-        )
-        for (let url of urls) {
-            const isKnownUrl = await this.isKnownUrl(url)
-            if (!isKnownUrl) {
-                await IndexQueueRepository.add({ url })
-            }
-        }
-    }
-
-    private async storeWords(pageIndex: PageIndex, words: string[]) {
-        await WordsRepository.createMany(
-            words.map((word, i) => ({
-                pageIndex,
-                word,
-                position: i
-            }))
-        )
-    }
-
-    private async isKnownUrl(url: string) {
-        const isQueued = await IndexQueueRepository.has(url)
-        if (isQueued) {
-            return true
-        }
-
-        const isIndexed = await PageIndexRepository.isIndexed(url)
-        if (isIndexed) {
-            return true
-        }
-
-        return false
     }
 
     private updateWorkersUI() {
