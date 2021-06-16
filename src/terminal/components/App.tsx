@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react"
+import { Box } from "ink"
 import { EventEmitter } from "events"
+import PageIndexSize from "./PageIndexSize"
 import WorkerTable from "./WorkerTable"
 import RootState from "../state/RootState.java"
 import Utils from "../Utils.java"
@@ -17,6 +19,9 @@ export default function App({ bridge, initialState }: {
     })
 
     return (
-        <WorkerTable state={state}/>
+        <Box flexDirection="column">
+            <PageIndexSize state={state}/>
+            <WorkerTable state={state}/>
+        </Box>
     )
 }

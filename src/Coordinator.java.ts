@@ -14,8 +14,9 @@ import WorkerState from "./terminal/state/WorkerState.java"
 import ErrorHandler from "./ErrorHandler.java"
 
 export default class Coordinator {
-    public static main(args: string[]) {
+    public static async main(args: string[]) {
         if (cluster.isMaster) {
+            await Database.migrate()
             const ui = new TerminalUI()
             const coordinator = new Coordinator(ui)
             coordinator.run()
@@ -40,8 +41,6 @@ export default class Coordinator {
     }
 
     public async run() {
-        await Database.migrate()
-
         const entrypointIsKnown = await this.isKnownUrl(Config.ENTRYPOINT)
         if (!entrypointIsKnown) {
             await IndexQueueRepository.add({ url: Config.ENTRYPOINT })

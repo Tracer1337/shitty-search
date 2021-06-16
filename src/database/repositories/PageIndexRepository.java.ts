@@ -25,4 +25,12 @@ export default class PageIndexRepository {
         const [row] = res[0] as RowDataPacket[]
         return row["COUNT(1)"] >= 1
     }
+
+    public static async getIndexSize() {
+        const res = await Database.getConnection().query(`
+            SELECT COUNT(*) FROM ${this.TABLE}
+        `)
+        const [row] = res[0] as RowDataPacket[]
+        return row["COUNT(*)"]
+    }
 }

@@ -118,9 +118,9 @@ export default class WorkerPool extends AsyncEventEmitter {
 
         const message = new ResultMessage(rawMessage)
 
-        this.updateWorkerTasks(worker, -1)
-
         await this.emit("result", message.data)
+        
+        this.updateWorkerTasks(worker, -1)
         this.workerQueue.add(worker)
         this.supplyWorkers()
     }
