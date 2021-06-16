@@ -1,6 +1,7 @@
-const { program } = require("commander")
+const { Command } = require("commander")
 const path = require("path")
 
+const program = new Command()
 program
     .version("1.0.0")
     .option("-classpath <path>", "class search path of directories")

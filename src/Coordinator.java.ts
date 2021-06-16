@@ -11,9 +11,13 @@ import WorkerState from "./terminal/state/WorkerState.java"
 import ErrorHandler from "./ErrorHandler.java"
 import WorkerResultStorage from "./WorkerResultStorage.java"
 import Utils from "./Utils.java"
+import Arguments from "./Arguments.java"
 
 export default class Coordinator {
     public static async main(args: string[]) {
+        Arguments.parseArguments(args)
+        Config.init()
+
         if (cluster.isMaster) {
             await Database.migrate()
             const ui = new TerminalUI()
