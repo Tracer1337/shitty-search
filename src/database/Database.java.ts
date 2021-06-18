@@ -1,10 +1,11 @@
 import mysql, { RowDataPacket } from "mysql2/promise"
 
 export default class Database {
-    private static readonly HOST = "localhost"
-    private static readonly USER = "root"
-    private static readonly PASSWORD = "root"
-    private static readonly DATABASE = "search-engine"
+    private static readonly HOST = process.env.DATABASE_HOST
+    private static readonly PORT = parseInt(process.env.DATABASE_PORT)
+    private static readonly USER = process.env.DATABASE_USER
+    private static readonly PASSWORD = process.env.DATABASE_PASSWORD
+    private static readonly DATABASE = process.env.DATABASE_NAME
 
     private static readonly TABLES: Record<string, string> = {
         "page_index": `
@@ -44,6 +45,7 @@ export default class Database {
         }
         this.connection = mysql.createPool({
             host: this.HOST,
+            port: this.PORT,
             user: this.USER,
             password: this.PASSWORD,
             database: this.DATABASE

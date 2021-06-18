@@ -1,3 +1,4 @@
+require("dotenv").config()
 const { Command } = require("commander")
 const path = require("path")
 
