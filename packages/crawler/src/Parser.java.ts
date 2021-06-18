@@ -1,4 +1,5 @@
 import cheerio, { CheerioAPI } from "cheerio"
+import ErrorHandler from "./ErrorHandler.java"
 
 export default class Parser {
     private static readonly URL_MAX_LENGTH = 255
@@ -31,7 +32,11 @@ export default class Parser {
 
     public getWords() {
         const words: string[] = []
-        this.$("*").each((_i, node) => {
+        const nodes = ErrorHandler.withErrorHandler(() => this.$("*"))
+        if (!nodes) {
+            return []
+        }
+        nodes.each((_i, node) => {
             const handle = this.$(node)
 
             if (handle.children().length > 0) {

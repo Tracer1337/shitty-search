@@ -35,16 +35,11 @@ export default class Crawler {
     }
 
     public async crawl() {
-        let response: Response
+        const response = await ErrorHandler.withErrorHandlerAsync(() =>
+            fetch(this.url)
+        )
 
-        try {
-            response = await fetch(this.url)
-        } catch (error) {
-            ErrorHandler.handleError(error)
-            return null
-        }
-
-        if (!this.shouldCrawl(response)) {
+        if (!response || !this.shouldCrawl(response)) {
             return null
         }
 
