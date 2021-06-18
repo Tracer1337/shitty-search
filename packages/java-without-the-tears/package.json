@@ -1,0 +1,14 @@
+{
+  "name": "java-without-the-tears",
+  "version": "1.0.0",
+  "description": "",
+  "bin": {
+    "java": "./java.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^10.0.0"
+  }
+}

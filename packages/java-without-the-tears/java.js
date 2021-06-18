@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 require("dotenv").config()
 const { Command } = require("commander")
 const path = require("path")
@@ -15,7 +17,7 @@ if (!className) {
 }
 
 const classFilename = className + ".java"
-const classPath = path.join(__dirname, options.Classpath, classFilename)
+const classPath = path.join(process.cwd(), options.Classpath, classFilename)
 
 const classModule = require(classPath)
 const main = classModule.main || classModule.default.main

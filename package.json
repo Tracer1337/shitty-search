@@ -1,29 +1,23 @@
 {
   "name": "shitty-search",
   "version": "1.0.0",
-  "description": "",
+  "description": "The worst search engine you have ever seen",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "npx ts-node java.js -classpath src Coordinator",
-    "build": "npx tsc",
-    "start": "node java -classpath dist Coordinator"
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tracer1337/shitty-search.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^15.12.1",
-    "@types/node-fetch": "^2.5.10",
-    "@types/react": "^17.0.11",
-    "ts-node": "^10.0.0",
-    "typescript": "^4.3.2"
+  "bugs": {
+    "url": "https://github.com/Tracer1337/shitty-search/issues"
   },
-  "dependencies": {
-    "cheerio": "*",
-    "commander": "^7.2.0",
-    "dotenv": "^10.0.0",
-    "ink": "^3.0.8",
-    "mysql2": "^2.2.5",
-    "node-fetch": "^2.6.1",
-    "react": "^16.14.0"
-  }
+  "homepage": "https://github.com/Tracer1337/shitty-search#readme"
 }
