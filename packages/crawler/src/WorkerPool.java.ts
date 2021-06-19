@@ -1,8 +1,8 @@
 import cluster, { Worker as WorkerProcess } from "cluster"
+import IndexQueueRepository from "database/dist/repositories/IndexQueueRepository.java"
 import AsyncEventEmitter from "./lib/AsyncEventEmitter.java"
 import Queue from "./Queue.java"
 import Throttle from "./Throttle.java"
-import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import ResultMessage from "./structures/ResultMessage.java"
 import TaskMessage from "./structures/TaskMessage.java"
 

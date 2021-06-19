@@ -1,10 +1,10 @@
 import React from "react"
 import { render } from "ink"
 import { EventEmitter } from "events"
+import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
 import App from "./components/App"
 import WorkerState from "./state/WorkerState.java"
 import RootState from "./state/RootState.java"
-import PageIndexRepository from "../database/repositories/PageIndexRepository.java"
 
 export default class TerminalUI {
     private static readonly UPDATE_INTERVAL = 500

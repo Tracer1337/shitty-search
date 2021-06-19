@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
-import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
-import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
+import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
+import IndexQueueRepository from "database/dist/repositories/IndexQueueRepository.java"
 
 export default class Utils {
     public static async isKnownUrl(url: string) {

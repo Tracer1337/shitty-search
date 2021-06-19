@@ -19,9 +19,9 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.9",
     "commander": "^7.2.0",
+    "database": "*",
     "ink": "^3.0.8",
     "java-without-the-tears": "*",
-    "mysql2": "^2.2.5",
     "node-fetch": "^2.6.1",
     "react": "^16.14.0"
   }

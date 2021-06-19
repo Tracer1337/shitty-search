@@ -1,8 +1,8 @@
+import PageIndex from "database/dist/models/PageIndex.java"
+import LinksRepository from "database/dist/repositories/LinksRepository.java"
+import WordsRepository from "database/dist/repositories/WordsRepository.java"
+import IndexQueueRepository from "database/dist/repositories/IndexQueueRepository.java"
 import WorkerResult from "./structures/WorkerResult.java"
-import PageIndex from "./database/models/PageIndex.java"
-import LinksRepository from "./database/repositories/LinksRepository.java"
-import WordsRepository from "./database/repositories/WordsRepository.java"
-import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
 import Utils from "./Utils.java"
 
 export default class WorkerResultStorage {
