@@ -1,5 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2"
 import Database from "../Database.java"
+import Utils from "../lib/Utils.java"
 import PageIndex from "../models/PageIndex.java"
 import WordsRepository from "./WordsRepository.java"
 
@@ -36,16 +37,13 @@ export default class PageIndexRepository {
     }
 
     public static async queryByKeywords(keywords: string[]) {
-        const wordList = keywords
-            .map((word) => word.toLowerCase())
-            .map((word) => `'${word}'`)
-            .join(",")
         const result = await Database.getConnection().query(`
             SELECT DISTINCT ${this.TABLE}.id, ${this.TABLE}.url
             FROM ${WordsRepository.TABLE}
             INNER JOIN ${this.TABLE}
             ON ${WordsRepository.TABLE}.page_index_id = ${this.TABLE}.id
-            WHERE LOWER(${WordsRepository.TABLE}.word) IN (${wordList})
+            WHERE LOWER(${WordsRepository.TABLE}.word)
+            IN (${Utils.lowerStringifyList(keywords)})
         `)
         const rows = result[0] as RowDataPacket[]
         return rows.map((row) =>

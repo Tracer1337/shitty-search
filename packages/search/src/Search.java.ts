@@ -2,12 +2,16 @@ import * as math from "mathjs"
 import Database from "database"
 import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
 import PageIndex from "database/dist/models/PageIndex.java"
-import WordFrequencyScore from "./scores/WordFrequencyScore.java"
 import Normalizer from "./Normalizer.java"
+import WordFrequencyScore from "./scores/WordFrequencyScore.java"
+import WordLocationScore from "./scores/WordLocationScore.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
-    private static readonly scores = [WordFrequencyScore]
+    private static readonly scores = [
+        WordFrequencyScore,
+        WordLocationScore
+    ]
 
     private keywords: string[]
 
