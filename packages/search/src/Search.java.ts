@@ -2,11 +2,12 @@ import * as math from "mathjs"
 import Database from "database"
 import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
 import PageIndex from "database/dist/models/PageIndex.java"
+import WordFrequencyScore from "./scores/WordFrequencyScore.java"
 import Normalizer from "./Normalizer.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
-    private static readonly scores = []
+    private static readonly scores = [WordFrequencyScore]
 
     public static async main(args: string[]) {
         if (args.length > Search.MAX_KEYWORDS) {
