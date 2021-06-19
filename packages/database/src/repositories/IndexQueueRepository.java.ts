@@ -3,7 +3,7 @@ import Database from "../Database.java"
 import IndexQueueItem from "../models/IndexQueueItem.java"
 
 export default class IndexQueueRepository {
-    private static readonly TABLE = "index_queue"
+    public static readonly TABLE = "index_queue"
 
     public static async add(values: { url: string }) {
         const indexQueueItem = new IndexQueueItem({

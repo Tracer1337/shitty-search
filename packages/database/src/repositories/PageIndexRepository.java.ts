@@ -1,9 +1,10 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2"
 import Database from "../Database.java"
 import PageIndex from "../models/PageIndex.java"
+import WordsRepository from "./WordsRepository.java"
 
 export default class PageIndexRepository {
-    private static readonly TABLE = "page_index"
+    public static readonly TABLE = "page_index"
     
     public static async create(values: { url: string }) {
         const pageIndex = new PageIndex({
@@ -40,10 +41,11 @@ export default class PageIndexRepository {
             .map((word) => `'${word}'`)
             .join(",")
         const result = await Database.getConnection().query(`
-            SELECT DISTINCT page_index.id, page_index.url
-            FROM words
-            INNER JOIN page_index ON words.page_index_id = page_index.id
-            WHERE LOWER(words.word) IN (${wordList})
+            SELECT DISTINCT ${this.TABLE}.id, ${this.TABLE}.url
+            FROM ${WordsRepository.TABLE}
+            INNER JOIN ${this.TABLE}
+            ON ${WordsRepository.TABLE}.page_index_id = ${this.TABLE}.id
+            WHERE LOWER(${WordsRepository.TABLE}.word) IN (${wordList})
         `)
         const rows = result[0] as RowDataPacket[]
         return rows.map((row) =>

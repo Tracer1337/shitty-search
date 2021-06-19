@@ -1,16 +1,12 @@
 import PageIndex from "database/dist/models/PageIndex.java"
 
 export default abstract class Score {
-    protected abstract weight: number
+    public static weight = 1
 
     constructor(
-        private pageIndex: PageIndex,
-        private keywords: string[]
+        protected pageIndex: PageIndex,
+        protected keywords: string[]
     ) {}
-
-    public getWeight() {
-        return this.weight
-    }
 
     public abstract getScore(): Promise<number>
 }

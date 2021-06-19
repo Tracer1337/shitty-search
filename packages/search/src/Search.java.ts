@@ -1,11 +1,17 @@
+import * as math from "mathjs"
 import Database from "database"
 import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
 import PageIndex from "database/dist/models/PageIndex.java"
+import Normalizer from "./Normalizer.java"
 
 export default class Search {
+    private static readonly MAX_KEYWORDS = 100
     private static readonly scores = []
 
     public static async main(args: string[]) {
+        if (args.length > Search.MAX_KEYWORDS) {
+            throw new Error("Too many keywords")
+        }
         const search = new Search(args)
         const result = await search.getSearchResults()
         console.log(result)
@@ -16,25 +22,44 @@ export default class Search {
 
     public async getSearchResults() {
         const pages = await PageIndexRepository.queryByKeywords(this.keywords)
-        const scores = await this.getScoresMap(pages)
-        pages.sort((a, b) => scores[a.id] - scores[b.id])
+        const scores = await this.getPageScores(pages)
+        this.sortPagesByScores(pages, scores)
         return pages
     }
 
-    private async getScoresMap(pages: PageIndex[]) {
-        const scores: Record<string, number> = {}
-        await Promise.all(pages.map(async (page) => {
-            scores[page.id] = await this.getPageScore(page)
-        }))
-        return scores
+    private async getPageScores(pages: PageIndex[]) {
+        const scores = await this.getScoresMatrix(pages)
+        const weights = this.collectWeights()
+        return math.multiply(scores, weights) as any as number[]
     }
 
-    private async getPageScore(page: PageIndex) {
-        let totalScore = 0
-        await Promise.all(Search.scores.map(async (Score) => {
-            const score = new Score(page, this.keywords)
-            totalScore += await score.getScore() * score.getWeight()
+    private async getScoresMatrix(pages: PageIndex[]) {
+        const scores: number[][] = []
+
+        await Promise.all(Search.scores.map(async (Score, i) => {
+            const row: number[] = []
+
+            await Promise.all(pages.map(async (page, j) => {
+                const score = new Score(page, this.keywords)
+                row[j] = await score.getScore()
+            }))
+
+            const normalizer = new Normalizer()
+            normalizer.fit(row)
+            const normalized = row.map((value) => normalizer.transform(value))
+            scores[i] = normalized
         }))
-        return totalScore / Search.scores.length
+
+        return math.transpose(scores)
+    }
+
+    private collectWeights() {
+        return Search.scores.map((Score) => Score.weight)
+    }
+
+    private sortPagesByScores(pages: PageIndex[], scores: number[]) {
+        const scoresMap: Record<string, number> = {}
+        pages.forEach((page, i) => scoresMap[page.id] = scores[i])
+        pages.sort((a, b) => scoresMap[b.id] - scoresMap[a.id])
     }
 }

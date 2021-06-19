@@ -2,7 +2,7 @@ import Database from "../Database.java"
 import Link from "../models/Link.java"
 
 export default class LinksRepository {
-    private static readonly TABLE = "links"
+    public static readonly TABLE = "links"
 
     public static async createMany(items: {
         from_page_index_id: number,
