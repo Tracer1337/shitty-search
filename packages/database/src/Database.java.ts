@@ -1,4 +1,7 @@
 import mysql, { RowDataPacket } from "mysql2/promise"
+import path from "path"
+import dotenv from "dotenv"
+dotenv.config({ path: path.join(__dirname, "..", ".env") })
 
 export default class Database {
     private static readonly HOST = process.env.DATABASE_HOST
