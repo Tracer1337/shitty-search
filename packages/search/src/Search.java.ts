@@ -9,17 +9,21 @@ export default class Search {
     private static readonly MAX_KEYWORDS = 100
     private static readonly scores = [WordFrequencyScore]
 
+    private keywords: string[]
+
     public static async main(args: string[]) {
-        if (args.length > Search.MAX_KEYWORDS) {
-            throw new Error("Too many keywords")
-        }
         const search = new Search(args)
         const result = await search.getSearchResults()
         console.log(result)
         await Database.getConnection().end()
     }
 
-    constructor(private keywords: string[]) {}
+    constructor(keywords: string[]) {
+        if (keywords.length > Search.MAX_KEYWORDS) {
+            throw new Error("Too many keywords")
+        }
+        this.keywords = keywords
+    }
 
     public async getSearchResults() {
         const pages = await PageIndexRepository.queryByKeywords(this.keywords)
@@ -45,7 +49,7 @@ export default class Search {
                 row[j] = await score.getScore()
             }))
 
-            const normalizer = new Normalizer()
+            const normalizer = new Normalizer(Score.higherIsBetter ? [0, 1] : [1, 0])
             normalizer.fit(row)
             const normalized = row.map((value) => normalizer.transform(value))
             scores[i] = normalized
