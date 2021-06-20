@@ -1,8 +1,13 @@
 export default class Utils {
-    public static lowerStringifyList(strings: string[]) {
+    public static stringifyList(strings: string[]) {
         return strings
-            .map((string) => string.toLowerCase())
             .map((string) => `'${string}'`)
             .join(",")
+    }
+
+    public static lowerStringifyList(strings: string[]) {
+        return Utils.stringifyList(
+            strings.map((string) => string.toLowerCase())
+        )
     }
 }

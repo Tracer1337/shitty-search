@@ -48,11 +48,13 @@ export default class Search {
 
     private async getPageData(pages: PageIndex[]) {
         const data: Record<string, PageData> = {}
-        await Promise.all(pages.map(async (page) => {
-            data[page.id] = new PageData({
-                words: await WordsRepository.findWordsOfPage(page, this.keywords)
-            })
-        }))
+        const words = await WordsRepository.findWordsInPages(pages, this.keywords)
+        words.forEach((word) => {
+            if (!data[word.page_index_id]) {
+                data[word.page_index_id] = new PageData({ words: [] })
+            }
+            data[word.page_index_id].words.push(word)
+        })
         return data
     }
 

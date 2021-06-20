@@ -32,10 +32,11 @@ export default class WordsRepository {
         `)
     }
 
-    public static async findWordsOfPage(pageIndex: PageIndex, words: string[]) {
+    public static async findWordsInPages(pageIndexes: PageIndex[], words: string[]) {
+        const pageIds = pageIndexes.map((page) => page.id.toString())
         const result = await Database.getConnection().query(`
             SELECT * FROM words
-            WHERE page_index_id='${pageIndex.id}'
+            WHERE page_index_id IN (${Utils.stringifyList(pageIds)})
             AND LOWER(word) IN (${Utils.lowerStringifyList(words)})
             ORDER BY position ASC
         `)
