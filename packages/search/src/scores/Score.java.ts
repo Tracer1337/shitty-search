@@ -1,7 +1,6 @@
 import PageIndex from "database/dist/models/PageIndex.java"
 
 export default abstract class Score {
-    public static weight = 1
     public static higherIsBetter = true
 
     constructor(

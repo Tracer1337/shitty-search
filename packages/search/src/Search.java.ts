@@ -10,10 +10,11 @@ import WordDistanceScore from "./scores/WordDistanceScore.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
-    private static readonly scores = [
-        WordFrequencyScore,
-        WordLocationScore,
-        WordDistanceScore
+    // TODO: Use correct typing here (should be [number, typeof Score])
+    private static readonly scores: [number, typeof WordFrequencyScore][] = [
+        [1, WordFrequencyScore],
+        [1, WordLocationScore],
+        [1, WordDistanceScore]
     ]
 
     private keywords: string[]
@@ -51,7 +52,7 @@ export default class Search {
     private async getScoresMatrix(pages: PageIndex[]) {
         const scores: number[][] = []
 
-        await Promise.all(Search.scores.map(async (Score, i) => {
+        await Promise.all(Search.scores.map(async ([_weight, Score], i) => {
             const row: number[] = []
 
             await Promise.all(pages.map(async (page, j) => {
@@ -74,7 +75,7 @@ export default class Search {
     }
 
     private collectWeights() {
-        return Search.scores.map((Score) => Score.weight)
+        return Search.scores.map(([weight]) => weight)
     }
 
     private sortPagesByScores(pages: PageIndex[], scores: number[]) {
