@@ -49,14 +49,4 @@ export default class WordsRepository {
             })
         )
     }
-
-    public static async getHighestPosition(pageIndex: PageIndex, words: string[]) {
-        const result = await Database.getConnection().query(`
-            SELECT MIN(position) FROM ${this.TABLE}
-            WHERE page_index_id='${pageIndex.id}'
-            AND LOWER(word) IN (${Utils.lowerStringifyList(words)})
-        `)
-        const [row] = result[0] as RowDataPacket[]
-        return row["MIN(position)"] as number
-    }
 }

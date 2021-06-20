@@ -1,7 +1,9 @@
 import * as math from "mathjs"
 import Database from "database"
 import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
+import WordsRepository from "database/dist/repositories/WordsRepository.java"
 import PageIndex from "database/dist/models/PageIndex.java"
+import PageData from "./structures/PageData.java"
 import NullTransformer from "./NullTransformer.java"
 import Normalizer from "./Normalizer.java"
 import WordFrequencyScore from "./scores/WordFrequencyScore.java"
@@ -38,25 +40,36 @@ export default class Search {
 
     public async getSearchResults() {
         const pages = await PageIndexRepository.queryByKeywords(this.keywords)
-        const scores = await this.getPageScores(pages)
+        const pageData = await this.getPageData(pages)
+        const scores = await this.getPageScores(pages, pageData)
         this.sortPagesByScores(pages, scores)
         return pages
     }
 
-    private async getPageScores(pages: PageIndex[]) {
-        const scores = await this.getScoresMatrix(pages)
+    private async getPageData(pages: PageIndex[]) {
+        const data: Record<string, PageData> = {}
+        await Promise.all(pages.map(async (page) => {
+            data[page.id] = new PageData({
+                words: await WordsRepository.findWordsOfPage(page, this.keywords)
+            })
+        }))
+        return data
+    }
+
+    private async getPageScores(pages: PageIndex[], pageData: Record<string, PageData>) {
+        const scores = await this.getScoresMatrix(pages, pageData)
         const weights = this.collectWeights()
         return math.multiply(scores, weights) as any as number[]
     }
 
-    private async getScoresMatrix(pages: PageIndex[]) {
+    private async getScoresMatrix(pages: PageIndex[], pageData: Record<string, PageData>) {
         const scores: number[][] = []
 
         await Promise.all(Search.scores.map(async ([_weight, Score], i) => {
             const row: number[] = []
 
             await Promise.all(pages.map(async (page, j) => {
-                const score = new Score(page, this.keywords)
+                const score = new Score(page, pageData[page.id], this.keywords)
                 row[j] = await score.getScore()
             }))
 

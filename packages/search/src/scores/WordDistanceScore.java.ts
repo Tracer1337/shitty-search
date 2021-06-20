@@ -1,4 +1,3 @@
-import WordsRepository from "database/dist/repositories/WordsRepository.java"
 import Word from "database/dist/models/Word.java"
 import Score from "./Score.java"
 
@@ -9,11 +8,7 @@ export default class WordDistanceScore extends Score {
         if (this.keywords.length === 1) {
             return 1
         }
-        const words = await WordsRepository.findWordsOfPage(
-            this.pageIndex,
-            this.keywords
-        )
-        return this.findClosestSequence(words)
+        return this.findClosestSequence(this.pageData.words)
     }
 
     private findClosestSequence(words: Word[]) {
