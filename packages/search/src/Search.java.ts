@@ -9,6 +9,7 @@ import Normalizer from "./Normalizer.java"
 import WordFrequencyScore from "./scores/WordFrequencyScore.java"
 import WordLocationScore from "./scores/WordLocationScore.java"
 import WordDistanceScore from "./scores/WordDistanceScore.java"
+import ContainsKeywordsScore from "./scores/ContainsKeywordsScore.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
@@ -16,7 +17,8 @@ export default class Search {
     private static readonly scores: [number, typeof WordFrequencyScore][] = [
         [1, WordFrequencyScore],
         [1, WordLocationScore],
-        [1, WordDistanceScore]
+        [1, WordDistanceScore],
+        [1, ContainsKeywordsScore]
     ]
 
     private keywords: string[]
