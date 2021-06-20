@@ -37,6 +37,7 @@ export default class WordsRepository {
             SELECT * FROM words
             WHERE page_index_id='${pageIndex.id}'
             AND LOWER(word) IN (${Utils.lowerStringifyList(words)})
+            ORDER BY position ASC
         `)
         const rows = result[0] as RowDataPacket[]
         return rows.map((row) =>

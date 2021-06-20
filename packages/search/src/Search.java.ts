@@ -6,12 +6,14 @@ import NullTransformer from "./NullTransformer.java"
 import Normalizer from "./Normalizer.java"
 import WordFrequencyScore from "./scores/WordFrequencyScore.java"
 import WordLocationScore from "./scores/WordLocationScore.java"
+import WordDistanceScore from "./scores/WordDistanceScore.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
     private static readonly scores = [
         WordFrequencyScore,
-        WordLocationScore
+        WordLocationScore,
+        WordDistanceScore
     ]
 
     private keywords: string[]
