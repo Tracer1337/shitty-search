@@ -2,6 +2,7 @@ import * as math from "mathjs"
 import Database from "database"
 import PageIndexRepository from "database/dist/repositories/PageIndexRepository.java"
 import PageIndex from "database/dist/models/PageIndex.java"
+import NullTransformer from "./NullTransformer.java"
 import Normalizer from "./Normalizer.java"
 import WordFrequencyScore from "./scores/WordFrequencyScore.java"
 import WordLocationScore from "./scores/WordLocationScore.java"
@@ -23,6 +24,9 @@ export default class Search {
     }
 
     constructor(keywords: string[]) {
+        if (keywords.length === 0) {
+            throw new Error("No keywords given")
+        }
         if (keywords.length > Search.MAX_KEYWORDS) {
             throw new Error("Too many keywords")
         }
@@ -53,9 +57,14 @@ export default class Search {
                 row[j] = await score.getScore()
             }))
 
+            const nullTransformer = new NullTransformer(Score.higherIsBetter)
+            nullTransformer.fit(row)
+            const withoutNull = nullTransformer.transform(row)
+
             const normalizer = new Normalizer(Score.higherIsBetter ? [0, 1] : [1, 0])
-            normalizer.fit(row)
-            const normalized = row.map((value) => normalizer.transform(value))
+            normalizer.fit(withoutNull)
+            const normalized = normalizer.transform(withoutNull)
+
             scores[i] = normalized
         }))
 

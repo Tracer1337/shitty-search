@@ -9,8 +9,13 @@ export default class Normalizer {
         this.max = Math.max(...dataset)
     }
 
-    public transform(input: number) {
-        const [toMin, toMax] = this.targetRange
-        return (input - this.min) * (toMax - toMin) / (this.max - this.min) + toMin
+    public transform(input: number[]) {
+        return input.map((value) => {
+            if (this.min === this.max) {
+                return 0
+            }
+            const [toMin, toMax] = this.targetRange
+            return (value - this.min) * (toMax - toMin) / (this.max - this.min) + toMin
+        })
     }
 }
