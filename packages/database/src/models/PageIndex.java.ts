@@ -9,4 +9,10 @@ export default class PageIndex {
         this.id = values.id
         this.url = values.url
     }
+
+    toJSON() {
+        return {
+            url: this.url
+        }
+    }
 }
