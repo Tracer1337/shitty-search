@@ -31,7 +31,7 @@ function serve(done) {
         server: {
             baseDir: `${dest}`
         },
-        port: 3000,
+        port: process.env.PORT,
         ui: false
     })
     done()

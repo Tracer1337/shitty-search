@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from "express"
+import cors from "cors"
 import Search from "search"
 import path from "path"
 import dotenv from "dotenv"
@@ -22,6 +23,7 @@ export default class Server {
     }
 
     private boot(app: Express) {
+        app.use(cors())
         app.get("/search", this.handleSearch.bind(this))
     }
 
