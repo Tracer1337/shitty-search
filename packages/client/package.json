@@ -1,0 +1,36 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "gulp dev",
+    "build": "gulp build",
+    "start": "yarn dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^15.12.1",
+    "autoprefixer": "^10.2.6",
+    "browser-sync": "^2.26.14",
+    "cssnano": "^5.0.6",
+    "del": "^6.0.0",
+    "gulp": "^4.0.2",
+    "gulp-ejs": "^5.1.0",
+    "gulp-esbuild": "^0.8.2",
+    "gulp-htmlmin": "^5.0.1",
+    "gulp-if": "^3.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^9.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "normalize.css": "^8.0.1",
+    "typescript": "^4.3.2",
+    "vinyl-buffer": "^1.0.1"
+  },
+  "dependencies": {
+    "postcss": "^8.3.5"
+  }
+}
