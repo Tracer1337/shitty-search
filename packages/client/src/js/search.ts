@@ -3,6 +3,7 @@ import ReactDOM from "react-dom"
 import config from "./config"
 import { API } from "./types"
 import SearchResultList from "./components/SearchResultList"
+import LoadingAnimation from "./components/LoadingAnimation"
 
 const queryInput = document.getElementById("input-query") as HTMLInputElement
 const searchButton = document.getElementById("button-search") as HTMLButtonElement
@@ -22,6 +23,7 @@ async function search() {
     if (query.length === 0) {
         return
     }
+    ReactDOM.render(React.createElement(LoadingAnimation), resultContainer)
     const results = await getSearchResults(query)
     ReactDOM.render(
         React.createElement(SearchResultList, { results }),

@@ -15,12 +15,12 @@ export default function SearchResultList({ results }: {
 
         listRef.current.style.display = "block"
 
-        const targets = listRef.current.querySelectorAll(
+        const items = listRef.current.querySelectorAll(
             ".search-result-list-item"
         )
 
         anime({
-            targets,
+            targets: items,
             opacity: [0, 1],
             translateY: [-16, 0],
             easing: "easeOutSine",
