@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+    # paths:
+    #   - packages/client/**
 
 jobs:
   deploy:
@@ -22,6 +24,8 @@ jobs:
 
     - name: Build
       run: yarn build
+      env:
+        API_ENDPOINT: http://v2202104145753149514.ultrasrv.de:3500
 
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
