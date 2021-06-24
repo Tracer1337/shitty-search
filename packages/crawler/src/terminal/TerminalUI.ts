@@ -1,7 +1,7 @@
 import React from "react"
 import { render } from "ink"
 import { EventEmitter } from "events"
-import PageIndexRepository from "shared/src/database/repositories/PageIndexRepository.java"
+import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
 import App from "./components/App"
 import WorkerState from "./state/WorkerState.java"
 import RootState from "./state/RootState.java"

@@ -1,4 +1,4 @@
-import Word from "shared/src/database/models/Word.java"
+import Word from "shared/dist/database/models/Word.java"
 import Score from "./Score.java"
 
 export default class WordDistanceScore extends Score {
