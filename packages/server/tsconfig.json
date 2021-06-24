@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "target": "ESNext",
+      "module": "CommonJS",
+      "moduleResolution": "node",
+      "removeComments": true,
+      "esModuleInterop": true,
+      "isolatedModules": true,
+      "experimentalDecorators": true,
+      "outDir": "dist",
+      "allowJs": true,
+      "resolveJsonModule": true
+    },
+  
+    "include": [
+      "src/**/*"
+    ],
+    
+    "exclude": [
+      "node_modules",
+      "dist"
+    ]
+  }

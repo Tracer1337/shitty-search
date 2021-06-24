@@ -122,7 +122,7 @@ const prodBuildTasks = makeBuildTasks({
 })
 
 const watch = () => gulp.watch(
-    [`${src}/*.ejs`, `${src}/**/*.ejs`, `${src}/js/**/*.ts`, `${src}/sass/**/*.{sass,scss}`, `${src}/assets/**/*.*`],
+    [`${src}/*.ejs`, `${src}/**/*.ejs`, `${src}/js/**/*.{ts,tsx}`, `${src}/sass/**/*.{sass,scss}`, `${src}/assets/**/*.*`],
     gulp.series(...devBuildTasks, reload)
 )
 
