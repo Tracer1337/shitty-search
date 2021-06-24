@@ -1,6 +1,6 @@
 import { EventEmitter } from "events"
-import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
-import IndexQueueRepository from "shared/dist/database/repositories/IndexQueueRepository.java"
+import IndexQueueRepository from "./database/repositories/IndexQueueRepository.java"
+import PageIndexRepository from "./database/repositories/PageIndexRepository.java"
 
 export default class Utils {
     public static async isKnownUrl(url: string) {
@@ -28,5 +28,17 @@ export default class Utils {
         return () => events.forEach(([name, listener]) => {
             target.off(name, listener)
         })
+    }
+
+    public static stringifyList(strings: string[]) {
+        return strings
+            .map((string) => `'${string}'`)
+            .join(",")
+    }
+
+    public static lowerStringifyList(strings: string[]) {
+        return Utils.stringifyList(
+            strings.map((string) => string.toLowerCase())
+        )
     }
 }

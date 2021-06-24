@@ -4,7 +4,7 @@ import { EventEmitter } from "events"
 import PageIndexSize from "./PageIndexSize"
 import WorkerTable from "./WorkerTable"
 import RootState from "../state/RootState.java"
-import Utils from "../../Utils.java"
+import Utils from "shared/dist/Utils.java"
 
 export default function App({ bridge, initialState }: {
     bridge: EventEmitter,

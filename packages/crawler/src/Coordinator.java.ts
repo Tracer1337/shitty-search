@@ -10,7 +10,7 @@ import TerminalUI from "./terminal/TerminalUI"
 import WorkerState from "./terminal/state/WorkerState.java"
 import ErrorHandler from "./ErrorHandler.java"
 import WorkerResultStorage from "./WorkerResultStorage.java"
-import Utils from "./Utils.java"
+import Utils from "shared/dist/Utils.java"
 import Arguments from "./Arguments.java"
 
 export default class Coordinator {

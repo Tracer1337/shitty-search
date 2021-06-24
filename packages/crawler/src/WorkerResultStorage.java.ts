@@ -3,7 +3,7 @@ import LinksRepository from "shared/dist/database/repositories/LinksRepository.j
 import WordsRepository from "shared/dist/database/repositories/WordsRepository.java"
 import IndexQueueRepository from "shared/dist/database/repositories/IndexQueueRepository.java"
 import WorkerResult from "./structures/WorkerResult.java"
-import Utils from "./Utils.java"
+import Utils from "shared/dist/Utils.java"
 
 export default class WorkerResultStorage {
     constructor(

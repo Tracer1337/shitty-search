@@ -1,6 +1,6 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2"
 import Database from "../Database.java"
-import Utils from "../../lib/Utils.java"
+import Utils from "../../Utils.java"
 import PageIndex from "../models/PageIndex.java"
 import WordsRepository from "./WordsRepository.java"
 

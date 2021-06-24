@@ -2,7 +2,7 @@ import { RowDataPacket } from "mysql2"
 import Database from "../Database.java"
 import PageIndex from "../models/PageIndex.java"
 import Word from "../models/Word.java"
-import Utils from "../../lib/Utils.java"
+import Utils from "../../Utils.java"
 
 export default class WordsRepository {
     public static readonly TABLE = "words"
