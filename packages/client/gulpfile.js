@@ -17,7 +17,7 @@ const ejs = require("gulp-ejs")
 const htmlmin = require("gulp-htmlmin")
 
 const src = "./src"
-const dest = "./build"
+const dest = "./dist"
 
 gulp.task("delete-dest", () => del([dest]))
 
