@@ -96,7 +96,9 @@ function script(config) {
                 minify: true,
                 sourcemap: config.sourcemaps && "external",
                 platform: "browser",
-                define: collectEnv([])
+                define: collectEnv([
+                    "API_ENDPOINT"
+                ])
             }))
             .pipe(buffer())
             .pipe(gulp.dest(`${dest}/js`))

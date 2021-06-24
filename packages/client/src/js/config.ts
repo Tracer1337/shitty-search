@@ -1,3 +1,3 @@
 export default {
-    API_ENDPOINT: "http://localhost:3100"
+    API_ENDPOINT: process.env.API_ENDPOINT
 } as const
