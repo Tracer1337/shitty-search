@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "dev": "java-dev -classpath src Coordinator",
-    "build": "tsc",
+    "build": "rimraf dist && tsc",
     "start": "java -classpath dist Coordinator"
   },
   "keywords": [],
@@ -14,15 +14,16 @@
     "@types/node": "^15.12.1",
     "@types/node-fetch": "^2.5.10",
     "@types/react": "^17.0.11",
+    "rimraf": "^3.0.2",
     "typescript": "^4.3.2"
   },
   "dependencies": {
     "cheerio": "1.0.0-rc.9",
     "commander": "^7.2.0",
-    "shared": "*",
     "ink": "^3.0.8",
     "java-without-the-tears": "*",
     "node-fetch": "^2.6.1",
-    "react": "^16.14.0"
+    "react": "^16.14.0",
+    "shared": "*"
   }
 }
