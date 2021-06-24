@@ -1,8 +1,7 @@
 {
-  "name": "database",
+  "name": "shared",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/Database.java",
   "scripts": {
     "build": "tsc"
   },

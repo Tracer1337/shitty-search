@@ -1,4 +1,4 @@
-import PageIndex from "database/dist/models/PageIndex.java"
+import PageIndex from "shared/src/database/models/PageIndex.java"
 import PageData from "../structures/PageData.java"
 
 export default abstract class Score {

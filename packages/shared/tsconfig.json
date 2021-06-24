@@ -9,7 +9,9 @@
       "experimentalDecorators": true,
       "outDir": "dist",
       "resolveJsonModule": true,
-      "declaration": true
+      "declaration": true,
+      "allowJs": true,
+      "jsx": "react"
     },
   
     "include": [

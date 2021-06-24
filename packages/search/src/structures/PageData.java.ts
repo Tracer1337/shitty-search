@@ -1,4 +1,4 @@
-import Word from "database/dist/models/Word.java"
+import Word from "shared/src/database/models/Word.java"
 
 export default class PageData {
     public words: Word[]

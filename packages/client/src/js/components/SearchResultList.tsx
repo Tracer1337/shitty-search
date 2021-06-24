@@ -24,7 +24,7 @@ export default function SearchResultList({ results }: {
             opacity: [0, 1],
             translateY: [-16, 0],
             easing: "easeOutSine",
-            duration: anime.stagger(100)
+            duration: anime.stagger(50)
         })
     }, [results])
 

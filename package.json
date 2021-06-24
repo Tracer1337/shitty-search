@@ -7,7 +7,7 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "yarn workspace shared run build && yarn workspaces run build"
   },
   "repository": {
     "type": "git",

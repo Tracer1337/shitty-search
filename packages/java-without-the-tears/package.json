@@ -7,6 +7,9 @@
     "java": "./java.js",
     "java-dev": "./java-dev.ts"
   },
+  "scripts": {
+    "build": ":"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

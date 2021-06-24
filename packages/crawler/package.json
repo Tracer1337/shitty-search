@@ -19,7 +19,7 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.9",
     "commander": "^7.2.0",
-    "database": "*",
+    "shared": "*",
     "ink": "^3.0.8",
     "java-without-the-tears": "*",
     "node-fetch": "^2.6.1",

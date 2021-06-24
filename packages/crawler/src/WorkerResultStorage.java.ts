@@ -1,7 +1,7 @@
-import PageIndex from "database/dist/models/PageIndex.java"
-import LinksRepository from "database/dist/repositories/LinksRepository.java"
-import WordsRepository from "database/dist/repositories/WordsRepository.java"
-import IndexQueueRepository from "database/dist/repositories/IndexQueueRepository.java"
+import PageIndex from "shared/src/database/models/PageIndex.java"
+import LinksRepository from "shared/src/database/repositories/LinksRepository.java"
+import WordsRepository from "shared/src/database/repositories/WordsRepository.java"
+import IndexQueueRepository from "shared/src/database/repositories/IndexQueueRepository.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Utils from "./Utils.java"
 
