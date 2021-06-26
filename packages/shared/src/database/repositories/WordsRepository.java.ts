@@ -1,53 +1,50 @@
-import { RowDataPacket } from "mysql2"
-import Database from "../Database.java"
-import PageIndex from "../models/PageIndex.java"
-import Word from "../models/Word.java"
+import { ResultSetHeader, RowDataPacket } from "mysql2"
 import Utils from "../../Utils.java"
+import Database from "../Database.java"
+import Word from "../models/Word.java"
 
 export default class WordsRepository {
     public static readonly TABLE = "words"
 
-    public static async createMany(items: {
-        pageIndex: PageIndex,
-        word: string,
-        position: number
-    }[]) {
-        if (items.length === 0) {
-            return
-        }
-        const words = items.map((values) =>
-            new Word({
-                id: null,
-                page_index_id: values.pageIndex.id,
-                word: values.word,
-                position: values.position
-            })
-        )
-        const tuples = words.map((word) =>
-            `('${word.page_index_id}', '${word.word}', '${word.position}')`
-        )
-        await Database.getConnection().query(`
-            INSERT INTO ${this.TABLE} (page_index_id, word, position)
-            VALUES ${tuples.join(", ")}
-        `)
+    public static toString() {
+        return this.TABLE
     }
 
-    public static async findWordsInPages(pageIndexes: PageIndex[], words: string[]) {
-        const pageIds = pageIndexes.map((page) => page.id.toString())
+    public static async create(values: { word: string }) {
+        const word = new Word({
+            id: null,
+            word: values.word
+        })
         const result = await Database.getConnection().query(`
-            SELECT * FROM words
-            WHERE page_index_id IN (${Utils.stringifyList(pageIds)})
-            AND LOWER(word) IN (${Utils.lowerStringifyList(words)})
-            ORDER BY position ASC
+            INSERT INTO ${this} (word) VALUES ('${word.word}')
         `)
-        const rows = result[0] as RowDataPacket[]
-        return rows.map((row) =>
-            new Word({
-                id: row.id,
-                page_index_id: row.page_index_id,
-                word: row.word,
-                position: row.position
-            })
-        )
+        const header = result[0] as ResultSetHeader
+        word.id = header.insertId
+        return word
+    }
+
+    public static findByWordContent = Utils.memoizedAsync(async (word: string) => {
+        const result = await Database.getConnection().query(`
+            SELECT * FROM ${this} WHERE word='${word}'
+        `)
+        const [row] = result[0] as RowDataPacket[]
+        
+        return !row ? null : new Word({
+            id: row.id,
+            word: row.word
+        })
+    })
+
+    public static async getWordIdsMap(words: string[]) {
+        const idsMap: Record<string, number> = {}
+        const uniqueWords = Utils.unique(words)
+        await Promise.all(uniqueWords.map(async (word) => {
+            let model = await this.findByWordContent(word)
+            if (!model) {
+                model = await this.create({ word })
+            }
+            idsMap[word] = model.id
+        }))
+        return idsMap
     }
 }

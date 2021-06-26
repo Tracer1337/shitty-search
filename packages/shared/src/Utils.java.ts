@@ -41,4 +41,20 @@ export default class Utils {
             strings.map((string) => string.toLowerCase())
         )
     }
+
+    public static memoizedAsync<TArg extends string | number, TReturn>(
+        fn: (arg: TArg) => Promise<TReturn>
+    ) {
+        const cache: Record<string | number, TReturn> = {}
+        return async (arg: TArg): Promise<TReturn> => {
+            if (!(arg in cache)) {
+                cache[arg] = await fn(arg)
+            }
+            return cache[arg]
+        }
+    }
+
+    public static unique<T>(array: T[]) {
+        return Array.from(new Set(array))
+    }
 }

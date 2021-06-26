@@ -3,9 +3,14 @@ import Database from "../Database.java"
 import Utils from "../../Utils.java"
 import PageIndex from "../models/PageIndex.java"
 import WordsRepository from "./WordsRepository.java"
+import IndexedWordsRepository from "./IndexedWordsRepository.java"
 
 export default class PageIndexRepository {
     public static readonly TABLE = "page_index"
+
+    public static toString() {
+        return this.TABLE
+    }
     
     public static async create(values: { url: string }) {
         const pageIndex = new PageIndex({
@@ -13,7 +18,7 @@ export default class PageIndexRepository {
             url: values.url
         })
         const result = await Database.getConnection().query(`
-            INSERT INTO ${this.TABLE} (url) VALUES ('${pageIndex.url}')
+            INSERT INTO ${this} (url) VALUES ('${pageIndex.url}')
         `)
         const header = result[0] as ResultSetHeader
         pageIndex.id = header.insertId
@@ -22,7 +27,7 @@ export default class PageIndexRepository {
 
     public static async isIndexed(url: string) {
         const res = await Database.getConnection().query(`
-            SELECT COUNT(1) FROM ${this.TABLE} WHERE url='${url}'
+            SELECT COUNT(1) FROM ${this} WHERE url='${url}'
         `)
         const [row] = res[0] as RowDataPacket[]
         return row["COUNT(1)"] >= 1
@@ -30,7 +35,7 @@ export default class PageIndexRepository {
 
     public static async getIndexSize() {
         const res = await Database.getConnection().query(`
-            SELECT COUNT(*) FROM ${this.TABLE}
+            SELECT COUNT(*) FROM ${this}
         `)
         const [row] = res[0] as RowDataPacket[]
         return row["COUNT(*)"]
@@ -38,11 +43,13 @@ export default class PageIndexRepository {
 
     public static async queryByKeywords(keywords: string[]) {
         const result = await Database.getConnection().query(`
-            SELECT DISTINCT ${this.TABLE}.id, ${this.TABLE}.url
-            FROM ${WordsRepository.TABLE}
-            INNER JOIN ${this.TABLE}
-            ON ${WordsRepository.TABLE}.page_index_id = ${this.TABLE}.id
-            WHERE LOWER(${WordsRepository.TABLE}.word)
+            SELECT DISTINCT ${this}.id, ${this}.url
+            FROM ${IndexedWordsRepository}
+            INNER JOIN ${WordsRepository}
+            ON ${IndexedWordsRepository}.word_id = ${WordsRepository}.id
+            INNER JOIN ${this}
+            ON ${IndexedWordsRepository}.page_index_id = ${this}.id
+            WHERE LOWER(${WordsRepository}.word)
             IN (${Utils.lowerStringifyList(keywords)})
         `)
         const rows = result[0] as RowDataPacket[]

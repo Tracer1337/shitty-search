@@ -4,6 +4,10 @@ import Link from "../models/Link.java"
 export default class LinksRepository {
     public static readonly TABLE = "links"
 
+    public static toString() {
+        return this.TABLE
+    }
+
     public static async createMany(items: {
         from_page_index_id: number,
         to_url: string

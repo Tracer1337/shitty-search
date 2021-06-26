@@ -1,6 +1,7 @@
 import PageIndex from "shared/dist/database/models/PageIndex.java"
 import LinksRepository from "shared/dist/database/repositories/LinksRepository.java"
 import WordsRepository from "shared/dist/database/repositories/WordsRepository.java"
+import IndexedWordsRepository from "shared/dist/database/repositories/IndexedWordsRepository.java"
 import IndexQueueRepository from "shared/dist/database/repositories/IndexQueueRepository.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Utils from "shared/dist/Utils.java"
@@ -34,10 +35,13 @@ export default class WorkerResultStorage {
     }
 
     private async storeWords() {
-        await WordsRepository.createMany(
+        const wordIds = await WordsRepository.getWordIdsMap(
+            this.result.words
+        )
+        await IndexedWordsRepository.createMany(
             this.result.words.map((word, i) => ({
                 pageIndex: this.pageIndex,
-                word,
+                word_id: wordIds[word],
                 position: i
             }))
         )

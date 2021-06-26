@@ -12,28 +12,34 @@ export default class Database {
 
     private static readonly TABLES: Record<string, string> = {
         "page_index": `
-            CREATE TABLE page_index (
+            CREATE TABLE IF NOT EXISTS page_index (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 url varchar(255) NOT NULL UNIQUE
             );
         `,
         "links": `
-            CREATE TABLE links (
+            CREATE TABLE IF NOT EXISTS links (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 from_page_index_id int NOT NULL REFERENCES page_index(id),
                 to_url varchar(255) NOT NULL
             );
         `,
         "words": `
-            CREATE TABLE words (
+            CREATE TABLE IF NOT EXISTS words (
+                id int PRIMARY KEY AUTO_INCREMENT,
+                word varchar(255) UNIQUE NOT NULL
+            );
+        `,
+        "indexed_words": `
+            CREATE TABLE IF NOT EXISTS indexed_words (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 page_index_id int NOT NULL REFERENCES page_index(id),
-                word varchar(255) NOT NULL,
+                word_id int NOT NULL REFERENCES words(id),
                 position int NOT NULL
             );
         `,
         "index_queue": `
-            CREATE TABLE index_queue (
+            CREATE TABLE IF NOT EXISTS index_queue (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 url varchar(255) NOT NULL UNIQUE
             );
@@ -57,20 +63,9 @@ export default class Database {
     }
 
     public static async migrate() {
-        const existingTables = await this.getTables()
         const connection = this.getConnection()
         for (let table in this.TABLES) {
-            if (existingTables.includes(table)) {
-                continue
-            }
             await connection.query(this.TABLES[table])
         }
-    }
-
-    private static async getTables() {
-        const connection = this.getConnection()
-        const result = await connection.query("SHOW TABLES")
-        const rows = result[0] as RowDataPacket[]
-        return rows.map((row) => row["Tables_in_" + this.DATABASE])
     }
 }

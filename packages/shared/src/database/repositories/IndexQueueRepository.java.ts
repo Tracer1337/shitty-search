@@ -5,13 +5,17 @@ import IndexQueueItem from "../models/IndexQueueItem.java"
 export default class IndexQueueRepository {
     public static readonly TABLE = "index_queue"
 
+    public static toString() {
+        return this.TABLE
+    }
+
     public static async add(values: { url: string }) {
         const indexQueueItem = new IndexQueueItem({
             id: null,
             url: values.url
         })
         const result = await Database.getConnection().query(`
-            INSERT INTO ${this.TABLE} (url) VALUES ('${indexQueueItem.url}')
+            INSERT INTO ${this} (url) VALUES ('${indexQueueItem.url}')
         `)
         const row = result[0] as ResultSetHeader
         indexQueueItem.id = row.insertId
@@ -20,7 +24,7 @@ export default class IndexQueueRepository {
 
     public static async poll(amount = 1) {
         const result = await Database.getConnection().query(`
-            SELECT * FROM ${this.TABLE} ORDER BY id ASC LIMIT ${amount}
+            SELECT * FROM ${this} ORDER BY id ASC LIMIT ${amount}
         `)
         const rows = result[0] as RowDataPacket[]
         if (rows.length === 0) {
@@ -40,7 +44,7 @@ export default class IndexQueueRepository {
 
     public static async has(url: string) {
         const result = await Database.getConnection().query(`
-            SELECT COUNT(1) FROM ${this.TABLE} WHERE url='${url}'
+            SELECT COUNT(1) FROM ${this} WHERE url='${url}'
         `)
         const [row] = result[0] as RowDataPacket[]
         return row["COUNT(1)"] >= 1
@@ -48,7 +52,7 @@ export default class IndexQueueRepository {
 
     public static async remove(indexQueueItem: IndexQueueItem) {
         await Database.getConnection().query(`
-            DELETE FROM ${this.TABLE} WHERE id='${indexQueueItem.id}'
+            DELETE FROM ${this} WHERE id='${indexQueueItem.id}'
         `)
     }
 }
