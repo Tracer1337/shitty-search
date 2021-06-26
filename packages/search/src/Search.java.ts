@@ -1,8 +1,10 @@
 import * as math from "mathjs"
 import Database from "shared/dist/database/Database.java"
 import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
+import IndexedWordsRepository from "shared/dist/database/repositories/IndexedWordsRepository.java"
 import WordsRepository from "shared/dist/database/repositories/WordsRepository.java"
 import PageIndex from "shared/dist/database/models/PageIndex.java"
+import Word from "shared/dist/database/models/Word.java"
 import PageData from "./structures/PageData.java"
 import NullTransformer from "./NullTransformer.java"
 import Normalizer from "./Normalizer.java"
@@ -21,27 +23,35 @@ export default class Search {
         [1, ContainsKeywordsScore]
     ]
 
-    private keywords: string[]
+    private keywords: Word[]
 
     public static async main(args: string[]) {
-        const search = new Search(args)
+        const search = await Search.createInstance(args)
         const result = await search.getSearchResults()
         console.log(result)
         await Database.getConnection().end()
     }
 
-    constructor(keywords: string[]) {
+    public static async createInstance(keywords: string[]) {
         if (keywords.length === 0) {
             throw new Error("No keywords given")
         }
         if (keywords.length > Search.MAX_KEYWORDS) {
             throw new Error("Too many keywords")
         }
-        this.keywords = keywords
+        const instance = new Search()
+        const lowerKeywords = keywords.map((keyword) => keyword.toLowerCase())
+        instance.keywords = await WordsRepository.getManyByWordContent(lowerKeywords, true)
+        return instance
     }
 
+    private constructor() {}
+
     public async getSearchResults() {
-        const pages = await PageIndexRepository.queryByKeywords(this.keywords)
+        const pages = await PageIndexRepository.queryByWords(this.keywords)
+        if (pages.length === 0) {
+            return []
+        }
         const pageData = await this.getPageData(pages)
         const scores = await this.getPageScores(pages, pageData)
         this.sortPagesByScores(pages, scores)
@@ -50,7 +60,7 @@ export default class Search {
 
     private async getPageData(pages: PageIndex[]) {
         const data: Record<string, PageData> = {}
-        const words = await WordsRepository.findWordsInPages(pages, this.keywords)
+        const words = await IndexedWordsRepository.matchIndexedWordsInPages(pages, this.keywords)
         words.forEach((word) => {
             if (!data[word.page_index_id]) {
                 data[word.page_index_id] = new PageData({ words: [] })

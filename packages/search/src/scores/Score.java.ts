@@ -1,4 +1,5 @@
 import PageIndex from "shared/dist/database/models/PageIndex.java"
+import Word from "../../../shared/dist/database/models/Word.java"
 import PageData from "../structures/PageData.java"
 
 export default abstract class Score {
@@ -7,7 +8,7 @@ export default abstract class Score {
     constructor(
         protected pageIndex: PageIndex,
         protected pageData: PageData,
-        protected keywords: string[]
+        protected keywords: Word[]
     ) {}
 
     public abstract getScore(): Promise<number>

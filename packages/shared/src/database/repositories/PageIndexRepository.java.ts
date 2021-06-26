@@ -4,6 +4,7 @@ import Utils from "../../Utils.java"
 import PageIndex from "../models/PageIndex.java"
 import WordsRepository from "./WordsRepository.java"
 import IndexedWordsRepository from "./IndexedWordsRepository.java"
+import Word from "../models/Word.java"
 
 export default class PageIndexRepository {
     public static readonly TABLE = "page_index"
@@ -41,7 +42,8 @@ export default class PageIndexRepository {
         return row["COUNT(*)"]
     }
 
-    public static async queryByKeywords(keywords: string[]) {
+    public static async queryByWords(words: Word[]) {
+        const wordIds = Utils.pickFromArrayAsString(words, "id")
         const result = await Database.getConnection().query(`
             SELECT DISTINCT ${this}.id, ${this}.url
             FROM ${IndexedWordsRepository}
@@ -49,8 +51,8 @@ export default class PageIndexRepository {
             ON ${IndexedWordsRepository}.word_id = ${WordsRepository}.id
             INNER JOIN ${this}
             ON ${IndexedWordsRepository}.page_index_id = ${this}.id
-            WHERE LOWER(${WordsRepository}.word)
-            IN (${Utils.lowerStringifyList(keywords)})
+            WHERE ${WordsRepository}.id
+            IN (${Utils.stringifyList(wordIds)})
         `)
         const rows = result[0] as RowDataPacket[]
         return rows.map((row) =>

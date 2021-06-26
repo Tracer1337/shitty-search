@@ -15,7 +15,6 @@ export default class LinksRepository {
         if (items.length === 0) {
             return
         }
-
         const links = items.map((values) =>
             new Link({
                 id: null,
@@ -23,11 +22,9 @@ export default class LinksRepository {
                 to_url: values.to_url
             })
         )
-
         const tuples = links.map((link) =>
             `('${link.from_page_index_id}', '${link.to_url}')`
         )
-
         await Database.getConnection().query(`
             INSERT INTO ${this.TABLE} (from_page_index_id, to_url)
             VALUES ${tuples.join(", ")}

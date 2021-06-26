@@ -32,8 +32,8 @@ export default class Server {
         if (!query || typeof query !== "string") {
             return res.send([])
         }
-        const keywoards = query.split(" ")
-        const search = new Search(keywoards)
+        const keywords = query.split(" ")
+        const search = await Search.createInstance(keywords)
         const result = await search.getSearchResults()
         return res.send(result)
     }

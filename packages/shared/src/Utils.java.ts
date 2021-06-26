@@ -36,25 +36,35 @@ export default class Utils {
             .join(",")
     }
 
-    public static lowerStringifyList(strings: string[]) {
-        return Utils.stringifyList(
-            strings.map((string) => string.toLowerCase())
-        )
-    }
-
-    public static memoizedAsync<TArg extends string | number, TReturn>(
-        fn: (arg: TArg) => Promise<TReturn>
+    public static memoizedAsync<TArgs extends Array<any>, TReturn>(
+        fn: (...args: TArgs) => Promise<TReturn>,
+        getKey: (...args: TArgs) => string
     ) {
         const cache: Record<string | number, TReturn> = {}
-        return async (arg: TArg): Promise<TReturn> => {
-            if (!(arg in cache)) {
-                cache[arg] = await fn(arg)
+        return async (...args: TArgs): Promise<TReturn> => {
+            const key = getKey(...args)
+            if (!(key in cache)) {
+                cache[key] = await fn(...args)
             }
-            return cache[arg]
+            return cache[key]
         }
     }
 
     public static unique<T>(array: T[]) {
         return Array.from(new Set(array))
+    }
+
+    public static pickFromArray<T extends Record<any, any>, K extends keyof T>(
+        array: T[],
+        key: K
+    ) {
+        return array.map((object) => object[key] as T[K])
+    }
+
+    public static pickFromArrayAsString<T extends Record<any, any>, K extends keyof T>(
+        array: T[],
+        key: K
+    ) {
+        return array.map((object) => object[key].toString() as string)
     }
 }

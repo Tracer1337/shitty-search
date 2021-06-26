@@ -1,4 +1,4 @@
-import Word from "shared/dist/database/models/Word.java"
+import IndexedWord from "../../../shared/dist/database/models/IndexedWord.java"
 import Score from "./Score.java"
 
 export default class WordDistanceScore extends Score {
@@ -11,14 +11,14 @@ export default class WordDistanceScore extends Score {
         return this.findClosestSequence(this.pageData.words)
     }
 
-    private findClosestSequence(words: Word[]) {
+    private findClosestSequence(words: IndexedWord[]) {
         let currentKeywordIndex = 0
         const diffs: number[] = []
 
         for (let i = 0; i < words.length; i++) {
-            if (words[i].word !== this.keywords[currentKeywordIndex]) {
+            if (words[i].word_id !== this.keywords[currentKeywordIndex].id) {
                 currentKeywordIndex = 0
-                if (words[i].word !== this.keywords[currentKeywordIndex]) {
+                if (words[i].word_id !== this.keywords[currentKeywordIndex].id) {
                     continue
                 }
             }

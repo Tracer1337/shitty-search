@@ -1,9 +1,9 @@
-import Word from "shared/dist/database/models/Word.java"
+import IndexedWord from "shared/dist/database/models/IndexedWord.java"
 
 export default class PageData {
-    public words: Word[]
+    public words: IndexedWord[]
     
-    constructor(values: { words: Word[] }) {
+    constructor(values: { words: IndexedWord[] }) {
         this.words = values.words
     }
 }

@@ -23,26 +23,51 @@ export default class WordsRepository {
         return word
     }
 
-    public static findByWordContent = Utils.memoizedAsync(async (word: string) => {
+    public static getByWordContent = Utils.memoizedAsync(
+        async (word: string, create = false) => {
+            const result = await Database.getConnection().query(`
+                SELECT * FROM ${this} WHERE word='${word}'
+            `)
+            const [row] = result[0] as RowDataPacket[]
+            if (!row) {
+                return !create ? null : await this.create({ word })
+            }
+            return new Word({
+                id: row.id,
+                word: row.word
+            })
+        },
+        (word) => word
+    )
+
+    public static async getManyByWordContent(words: string[], create = false) {
         const result = await Database.getConnection().query(`
-            SELECT * FROM ${this} WHERE word='${word}'
+            SELECT * FROM ${this} WHERE word IN (${Utils.stringifyList(words)})
         `)
-        const [row] = result[0] as RowDataPacket[]
-        
-        return !row ? null : new Word({
-            id: row.id,
-            word: row.word
-        })
-    })
+        const rows = result[0] as RowDataPacket[]
+        if (!create) {
+            return rows.map((row) => new Word({
+                id: row.id,
+                word: row.word
+            }))
+        }
+        return await Promise.all(words.map((word) => {
+            const row = rows.find((row) => row.word === word)
+            if (!row) {
+                return this.create({ word })
+            }
+            return new Word({
+                id: row.id,
+                word: row.word
+            })
+        }))
+    }
 
     public static async getWordIdsMap(words: string[]) {
         const idsMap: Record<string, number> = {}
         const uniqueWords = Utils.unique(words)
         await Promise.all(uniqueWords.map(async (word) => {
-            let model = await this.findByWordContent(word)
-            if (!model) {
-                model = await this.create({ word })
-            }
+            const model = await this.getByWordContent(word, true)
             idsMap[word] = model.id
         }))
         return idsMap

@@ -4,6 +4,7 @@ import PageIndex from "../models/PageIndex.java"
 import IndexedWord from "../models/IndexedWord.java"
 import Utils from "../../Utils.java"
 import WordsRepository from "./WordsRepository.java"
+import Word from "../models/Word.java"
 
 export default class IndexedWordsRepository {
     public static readonly TABLE = "indexed_words"
@@ -37,15 +38,16 @@ export default class IndexedWordsRepository {
         `)
     }
 
-    public static async matchIndexedWordsInPage(
+    public static async matchIndexedWordsInPages(
         pageIndexes: PageIndex[],
-        words: string[]
+        words: Word[]
     ) {
-        const pageIds = pageIndexes.map((page) => page.id.toString())
+        const pageIds = Utils.pickFromArrayAsString(pageIndexes, "id")
+        const wordIds = Utils.pickFromArrayAsString(words, "id")
         const result = await Database.getConnection().query(`
-            SELECT * FROM ${WordsRepository}
+            SELECT * FROM ${this}
             WHERE page_index_id IN (${Utils.stringifyList(pageIds)})
-            AND LOWER(word) IN (${Utils.lowerStringifyList(words)})
+            AND word_id IN (${Utils.stringifyList(wordIds)})
             ORDER BY position ASC
         `)
         const rows = result[0] as RowDataPacket[]
