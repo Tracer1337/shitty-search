@@ -3,7 +3,6 @@ import Database from "../Database.java"
 import PageIndex from "../models/PageIndex.java"
 import IndexedWord from "../models/IndexedWord.java"
 import Utils from "../../Utils.java"
-import WordsRepository from "./WordsRepository.java"
 import Word from "../models/Word.java"
 
 export default class IndexedWordsRepository {

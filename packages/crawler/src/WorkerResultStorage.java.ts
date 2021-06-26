@@ -35,11 +35,10 @@ export default class WorkerResultStorage {
     }
 
     private async storeWords() {
-        const wordIds = await WordsRepository.getWordIdsMap(
-            this.result.words
-        )
+        const words = this.result.words.map((word) => word.toLowerCase())
+        const wordIds = await WordsRepository.getWordIdsMap(words)
         await IndexedWordsRepository.createMany(
-            this.result.words.map((word, i) => ({
+            words.map((word, i) => ({
                 pageIndex: this.pageIndex,
                 word_id: wordIds[word],
                 position: i
