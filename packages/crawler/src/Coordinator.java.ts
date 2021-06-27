@@ -4,6 +4,7 @@ import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepo
 import IndexQueueRepository from "shared/dist/database/repositories/IndexQueueRepository.java"
 import Worker from "./Worker.java"
 import WorkerPool from "./WorkerPool.java"
+import ExecQueue from "./ExecQueue.java"
 import Config from "./Config.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import TerminalUI from "./terminal/TerminalUI"
@@ -12,6 +13,7 @@ import ErrorHandler from "./ErrorHandler.java"
 import WorkerResultStorage from "./WorkerResultStorage.java"
 import Utils from "shared/dist/Utils.java"
 import Arguments from "./Arguments.java"
+import ExecQueueItem from "./structures/ExecQueueItem.java"
 
 export default class Coordinator {
     public static async main(args: string[]) {
@@ -37,6 +39,7 @@ export default class Coordinator {
             timeout: Config.TIMEOUT
         }
     })
+    private resultStorageQueue = new ExecQueue()
 
     constructor(private ui: TerminalUI) {
         this.workerPool.on("result", this.handleResult.bind(this))
@@ -53,17 +56,21 @@ export default class Coordinator {
         this.updateWorkersUI()
     }
 
-    private async handleResult({ source, result }: {
+    private handleResult({ source, result }: {
         source: string,
         result: WorkerResult | null
     }) {
-        await ErrorHandler.withErrorHandlerAsync(async () => {
-            const pageIndex = await PageIndexRepository.create({ url: source })
-            if (result !== null) {
-                const resultStorage = new WorkerResultStorage(pageIndex, result)
-                await resultStorage.storeResult()
-            }
+        const queueItem = new ExecQueueItem({
+            key: source,
+            fn: () => ErrorHandler.withErrorHandlerAsync(async () => {
+                const pageIndex = await PageIndexRepository.create({ url: source })
+                if (result !== null) {
+                    const resultStorage = new WorkerResultStorage(pageIndex, result)
+                    await resultStorage.storeResult()
+                }
+            })
         })
+        this.resultStorageQueue.add(queueItem)
     }
 
     private updateWorkersUI() {

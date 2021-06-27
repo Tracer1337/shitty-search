@@ -7,6 +7,8 @@ import ResultMessage from "./structures/ResultMessage.java"
 import TaskMessage from "./structures/TaskMessage.java"
 
 export default class WorkerPool extends AsyncEventEmitter {
+    private static readonly SUPPLY_WORKERS_POLLING_INTERVAL = 500
+
     private workers = new Set<WorkerProcess>()
     private workerQueue = new Queue<WorkerProcess>()
     private workerTasks = new Map<WorkerProcess, number>()
@@ -33,6 +35,11 @@ export default class WorkerPool extends AsyncEventEmitter {
         cluster.on("exit", this.handleWorkerExit.bind(this))
         cluster.on("message", this.handleWorkerMessage.bind(this))
         cluster.on("online", this.handleWorkerOnline.bind(this))
+
+        setInterval(
+            this.supplyWorkers.bind(this),
+            WorkerPool.SUPPLY_WORKERS_POLLING_INTERVAL
+        )
     }
 
     public createWorkers(nWorkers: number) {
@@ -118,7 +125,7 @@ export default class WorkerPool extends AsyncEventEmitter {
 
         const message = new ResultMessage(rawMessage)
 
-        await this.emit("result", message.data)
+        this.emit("result", message.data)
         
         this.updateWorkerTasks(worker, -1)
         this.workerQueue.add(worker)
