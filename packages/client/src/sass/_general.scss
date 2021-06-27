@@ -25,3 +25,14 @@ body {
         background-color: rgba($color-primary, .87);
     }
 }
+
+.centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .text {
+        margin: 0;
+        margin-bottom: 16px;
+    }
+}

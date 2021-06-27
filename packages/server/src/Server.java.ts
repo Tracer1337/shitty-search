@@ -33,8 +33,13 @@ export default class Server {
             return res.send([])
         }
         const keywords = query.split(" ")
-        const search = await Search.createInstance(keywords)
-        const result = await search.getSearchResults()
-        return res.send(result)
+        try {
+            const search = await Search.createInstance(keywords)
+            const result = await search.getSearchResults()
+            return res.send(result)
+        } catch (error) {
+            console.error(error)
+            return res.sendStatus(500)
+        }
     }
 }

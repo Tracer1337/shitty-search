@@ -4,6 +4,7 @@ import config from "./config"
 import { API } from "./types"
 import SearchResultList from "./components/SearchResultList"
 import LoadingAnimation from "./components/LoadingAnimation"
+import ServerError from "./components/ServerError"
 
 const queryInput = document.getElementById("input-query") as HTMLInputElement
 const searchButton = document.getElementById("button-search") as HTMLButtonElement
@@ -18,17 +19,25 @@ queryInput.addEventListener("keypress", (event) => {
 
 searchButton.addEventListener("click", search)
 
+function render<T extends React.FunctionComponent<any>>(
+    component: T,
+    props?: React.ComponentProps<T>
+) {
+    ReactDOM.render(React.createElement(component, props), resultContainer)
+}
+
 async function search() {
     const query = queryInput.value
     if (query.length === 0) {
         return
     }
-    ReactDOM.render(React.createElement(LoadingAnimation), resultContainer)
-    const results = await getSearchResults(query)
-    ReactDOM.render(
-        React.createElement(SearchResultList, { results }),
-        resultContainer
-    )
+    render(LoadingAnimation)
+    try {
+        const results = await getSearchResults(query)
+        render(SearchResultList, { results })
+    } catch {
+        render(ServerError)
+    }
 }
 
 async function getSearchResults(query: string) {
