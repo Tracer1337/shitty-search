@@ -5,8 +5,11 @@ import IndexedWordsRepository from "shared/dist/database/repositories/IndexedWor
 import IndexQueueRepository from "shared/dist/database/repositories/IndexQueueRepository.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Utils from "shared/dist/Utils.java"
+import ErrorHandler from "./ErrorHandler.java"
 
 export default class WorkerResultStorage {
+    private static readonly WORDS_STORAGE_RETRIES = 3
+
     constructor(
         private pageIndex: PageIndex,
         private result: WorkerResult
@@ -36,7 +39,10 @@ export default class WorkerResultStorage {
 
     private async storeWords() {
         const words = this.result.words.map((word) => word.toLowerCase())
-        const wordIds = await WordsRepository.getWordIdsMap(words)
+        const wordIds = await ErrorHandler.withRetriesAsync(
+            () => WordsRepository.getWordIdsMap(words),
+            WorkerResultStorage.WORDS_STORAGE_RETRIES
+        )
         await IndexedWordsRepository.createMany(
             words.map((word, i) => ({
                 pageIndex: this.pageIndex,

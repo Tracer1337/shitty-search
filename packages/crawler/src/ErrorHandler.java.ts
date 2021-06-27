@@ -24,4 +24,18 @@ export default class ErrorHandler {
     public static handleError(error: Error) {
         this.logStorage.store(`${error.stack}\n\n`) 
     }
+
+    public static async withRetriesAsync<T>(
+        fn: (...args: any[]) => Promise<T>,
+        retries: number
+    ) {
+        try {
+            return await fn()
+        } catch (error) {
+            if (retries === 0) {
+                throw error
+            }
+            return await ErrorHandler.withRetriesAsync(fn, retries - 1)
+        }
+    }
 }
