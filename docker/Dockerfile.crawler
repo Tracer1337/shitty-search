@@ -1,0 +1,13 @@
+FROM node:14-alpine
+
+WORKDIR /app
+
+COPY .. .
+
+RUN npm install --global npm
+RUN yarn
+RUN yarn build
+
+ENV NODE_ENV=production
+
+ENTRYPOINT ["npm", "run", "start", "--workspace=crawler"]
