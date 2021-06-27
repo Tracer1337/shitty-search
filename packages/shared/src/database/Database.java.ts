@@ -27,7 +27,8 @@ export default class Database {
         "words": `
             CREATE TABLE IF NOT EXISTS words (
                 id int PRIMARY KEY AUTO_INCREMENT,
-                word varchar(255) UNIQUE NOT NULL
+                word varchar(255) UNIQUE NOT NULL,
+                UNIQUE INDEX (word)
             );
         `,
         "indexed_words": `
@@ -35,7 +36,8 @@ export default class Database {
                 id int PRIMARY KEY AUTO_INCREMENT,
                 page_index_id int NOT NULL REFERENCES page_index(id),
                 word_id int NOT NULL REFERENCES words(id),
-                position int NOT NULL
+                position int NOT NULL,
+                INDEX (page_index_id, word_id, position)
             );
         `,
         "index_queue": `
