@@ -49,4 +49,10 @@ export default class TerminalUI {
         newState.indexSize = indexSizeState
         this.setState(newState)
     }
+    
+    public setStorageQueueSize(storageQueueSize: number) {
+        const newState = this.state.clone()
+        newState.storageQueueSize = storageQueueSize
+        this.setState(newState)
+    }
 }

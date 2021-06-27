@@ -71,6 +71,7 @@ export default class Coordinator {
             })
         })
         this.resultStorageQueue.add(queueItem)
+        this.ui.setStorageQueueSize(this.resultStorageQueue.size())
     }
 
     private updateWorkersUI() {

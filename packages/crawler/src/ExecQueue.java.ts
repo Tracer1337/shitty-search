@@ -15,6 +15,10 @@ export default class ExecQueue extends Array<ExecQueueItem> {
         return this.shift()
     }
 
+    public size() {
+        return this.length
+    }
+
     private hasItemKey(key: string) {
         return this.some((item) => key === item.key)
     }
@@ -25,7 +29,7 @@ export default class ExecQueue extends Array<ExecQueueItem> {
         }
         this.isExecuting = true
         
-        while (this.length > 0) {
+        while (this.size() > 0) {
             await this.poll().fn()
         }
 
