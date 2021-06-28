@@ -45,5 +45,5 @@ async function search(page = 0) {
 
 async function getSearchResults(query: string, page: number) {
     const res = await fetch(`${config.API_ENDPOINT}/search?q=${query}&page=${page}`)
-    return await res.json() as API.Paginated<API.PageIndex>
+    return await res.json() as API.SearchResponse
 }

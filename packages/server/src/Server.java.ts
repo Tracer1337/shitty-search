@@ -1,10 +1,12 @@
 import express, { Express, Request, Response } from "express"
 import cors from "cors"
+import { performance } from "perf_hooks"
 import Search from "search"
 import path from "path"
 import dotenv from "dotenv"
 dotenv.config({ path: path.join(__dirname, "..", ".env") })
-import PaginatedResponse from "./PaginatedResponse.java"
+import PaginatedResponse from "./responses/PaginatedResponse.java"
+import PerformanceResponse from "./responses/PerformanceResponse.java"
 
 export default class Server {
     private static readonly PORT = process.env.PORT
@@ -44,12 +46,21 @@ export default class Server {
             .map((word) => encodeURIComponent(word))
 
         try {
+            const t0 = performance.now()
+
             const search = await Search.createInstance(keywords)
             const result = await search.getSearchResults()
-            const response = new PaginatedResponse({
-                items: result,
-                page,
-                itemsPerPage: Server.ITEMS_PER_PAGE
+
+            const t1 = performance.now()
+
+            const response = new PerformanceResponse({
+                duration: t1 - t0,
+                size: result.length,
+                data: new PaginatedResponse({
+                    items: result,
+                    page,
+                    itemsPerPage: Server.ITEMS_PER_PAGE
+                })
             })
             return res.send(response)
         } catch (error) {

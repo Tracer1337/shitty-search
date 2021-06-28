@@ -17,7 +17,7 @@ function PageItem({ children, onClick, active }: React.PropsWithChildren<{
 }
 
 export default function Pagination({ meta, onPageChange }: {
-    meta: API.Paginated<any>["meta"],
+    meta: API.PaginatedResponse<any>["meta"],
     onPageChange: (page: number) => void
 }) {
     let from = Math.floor(meta.currentPage / MAX_PAGES) * MAX_PAGES

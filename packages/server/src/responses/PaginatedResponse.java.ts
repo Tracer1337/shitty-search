@@ -30,7 +30,7 @@ export default class PaginatedResponse<T> {
                 currentPage: this.page + 1,
                 totalPages: this.getAmountOfPages()
             },
-            items: this.paginate()
+            data: this.paginate()
         }
     }
 }
