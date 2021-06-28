@@ -5,7 +5,7 @@ export default function SearchResult({ pageIndex }: {
     pageIndex: API.PageIndex
 }) {
     return (
-        <div className="search-result-list-item">
+        <div className="card p-3">
             <a href={pageIndex.url}>{ pageIndex.url }</a>
         </div>
     )

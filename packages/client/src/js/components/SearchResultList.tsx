@@ -16,7 +16,7 @@ export default function SearchResultList({ results }: {
         listRef.current.style.display = "block"
 
         const items = listRef.current.querySelectorAll(
-            ".search-result-list-item"
+            "[data-item]"
         )
 
         anime({
@@ -29,13 +29,15 @@ export default function SearchResultList({ results }: {
     }, [results])
 
     return (
-        <div
-            className="search-result-list"
-            ref={listRef}
-            style={{ display: "none" }}
-        >
+        <div ref={listRef} style={{ display: "none" }}>
             {results.map((pageIndex, i) => (
-                <SearchResult pageIndex={pageIndex} key={i}/>
+                <div
+                    className={i === results.length - 1 ? "" : "mb-3"}
+                    data-item
+                    key={i}
+                >
+                    <SearchResult pageIndex={pageIndex} key={i}/>
+                </div>
             ))}
         </div>
     )

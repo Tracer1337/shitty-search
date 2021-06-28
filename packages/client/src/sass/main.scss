@@ -1,6 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap');
-@import "normalize.css/normalize";
-@import "var";
-@import "general";
-@import "header";
-@import "search";
+@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;500;700&display=swap');
+@import "./overrides";
+@import "bootstrap/scss/bootstrap";
+@import "./custom"
