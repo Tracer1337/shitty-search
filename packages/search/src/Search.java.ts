@@ -80,8 +80,7 @@ export default class Search {
         })
 
         links.forEach((link) => {
-            const pageIndexId = pages.find((page) => page.url === link.to_url)
-            getPageData(pageIndexId.id).links.push(link)
+            getPageData(link.to_page_index_id).links.push(link)
         })
         
         return data

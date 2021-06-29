@@ -3,7 +3,6 @@ import Utils from "../../Utils.java"
 import Database from "../Database.java"
 import Link from "../models/Link.java"
 import PageIndex from "../models/PageIndex.java"
-import PageIndexRepository from "./PageIndexRepository.java"
 
 export default class LinksRepository {
     public static readonly TABLE = "links"
@@ -36,13 +35,9 @@ export default class LinksRepository {
     }
 
     public static async getLinksToPages(targets: PageIndex[]) {
+        const ids = Utils.stringifyList(Utils.pickFromArrayAsString(targets, "id"))
         const result = await Database.getConnection().query(`
-            SELECT ${this}.*
-            FROM ${this}
-            INNER JOIN ${PageIndexRepository}
-            ON ${this}.from_page_index_id = ${PageIndexRepository}.id
-            WHERE ${this}.to_url
-            IN (${Utils.stringifyList(Utils.pickFromArray(targets, "url"))})
+            SELECT ${this}.* FROM ${this} WHERE ${this}.to_page_index_id IN (${ids})
         `)
         const rows = result[0] as RowDataPacket[]
         return rows.map((row) =>
