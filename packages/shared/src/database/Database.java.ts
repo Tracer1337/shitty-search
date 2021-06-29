@@ -27,8 +27,7 @@ export default class Database {
         "words": `
             CREATE TABLE IF NOT EXISTS words (
                 id int PRIMARY KEY AUTO_INCREMENT,
-                word varchar(255) UNIQUE NOT NULL,
-                UNIQUE INDEX (word)
+                word varchar(255) NOT NULL UNIQUE
             );
         `,
         "indexed_words": `

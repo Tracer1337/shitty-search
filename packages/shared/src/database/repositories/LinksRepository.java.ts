@@ -1,5 +1,9 @@
+import { RowDataPacket } from "mysql2"
+import Utils from "../../Utils.java"
 import Database from "../Database.java"
 import Link from "../models/Link.java"
+import PageIndex from "../models/PageIndex.java"
+import PageIndexRepository from "./PageIndexRepository.java"
 
 export default class LinksRepository {
     public static readonly TABLE = "links"
@@ -29,5 +33,24 @@ export default class LinksRepository {
             INSERT INTO ${this.TABLE} (from_page_index_id, to_url)
             VALUES ${tuples.join(", ")}
         `)
+    }
+
+    public static async getLinksToPages(targets: PageIndex[]) {
+        const result = await Database.getConnection().query(`
+            SELECT ${this}.*
+            FROM ${this}
+            INNER JOIN ${PageIndexRepository}
+            ON ${this}.from_page_index_id = ${PageIndexRepository}.id
+            WHERE ${this}.to_url
+            IN (${Utils.stringifyList(Utils.pickFromArray(targets, "url"))})
+        `)
+        const rows = result[0] as RowDataPacket[]
+        return rows.map((row) =>
+            new Link({
+                id: row.id,
+                from_page_index_id: row.from_page_index_id,
+                to_url: row.to_url
+            })
+        )
     }
 }

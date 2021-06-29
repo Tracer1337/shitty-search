@@ -3,6 +3,7 @@ import Database from "shared/dist/database/Database.java"
 import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
 import IndexedWordsRepository from "shared/dist/database/repositories/IndexedWordsRepository.java"
 import WordsRepository from "shared/dist/database/repositories/WordsRepository.java"
+import LinksRepository from "shared/dist/database/repositories/LinksRepository.java"
 import PageIndex from "shared/dist/database/models/PageIndex.java"
 import Word from "shared/dist/database/models/Word.java"
 import PageData from "./structures/PageData.java"
@@ -12,6 +13,7 @@ import WordFrequencyScore from "./scores/WordFrequencyScore.java"
 import WordLocationScore from "./scores/WordLocationScore.java"
 import WordDistanceScore from "./scores/WordDistanceScore.java"
 import ContainsKeywordsScore from "./scores/ContainsKeywordsScore.java"
+import InboundLinksScore from "./scores/InboundLinksScore.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
@@ -20,7 +22,8 @@ export default class Search {
         [1, WordFrequencyScore],
         [1, WordLocationScore],
         [1, WordDistanceScore],
-        [1, ContainsKeywordsScore]
+        [1, ContainsKeywordsScore],
+        [1, InboundLinksScore]
     ]
 
     private keywords: Word[]
@@ -60,13 +63,27 @@ export default class Search {
 
     private async getPageData(pages: PageIndex[]) {
         const data: Record<string, PageData> = {}
+
+        const getPageData = (pageIndexId: number) => {
+            data[pageIndexId] ??= new PageData({
+                words: [],
+                links: []
+            })
+            return data[pageIndexId]
+        }
+
         const words = await IndexedWordsRepository.matchIndexedWordsInPages(pages, this.keywords)
+        const links = await LinksRepository.getLinksToPages(pages)
+
         words.forEach((word) => {
-            if (!data[word.page_index_id]) {
-                data[word.page_index_id] = new PageData({ words: [] })
-            }
-            data[word.page_index_id].words.push(word)
+            getPageData(word.page_index_id).words.push(word)
         })
+
+        links.forEach((link) => {
+            const pageIndexId = pages.find((page) => page.url === link.to_url)
+            getPageData(pageIndexId.id).links.push(link)
+        })
+        
         return data
     }
 

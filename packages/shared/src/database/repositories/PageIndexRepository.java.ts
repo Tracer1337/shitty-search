@@ -2,9 +2,9 @@ import { ResultSetHeader, RowDataPacket } from "mysql2"
 import Database from "../Database.java"
 import Utils from "../../Utils.java"
 import PageIndex from "../models/PageIndex.java"
+import Word from "../models/Word.java"
 import WordsRepository from "./WordsRepository.java"
 import IndexedWordsRepository from "./IndexedWordsRepository.java"
-import Word from "../models/Word.java"
 
 export default class PageIndexRepository {
     public static readonly TABLE = "page_index"
