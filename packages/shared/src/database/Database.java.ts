@@ -21,7 +21,7 @@ export default class Database {
             CREATE TABLE IF NOT EXISTS links (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 from_page_index_id int NOT NULL REFERENCES page_index(id),
-                to_url varchar(255) NOT NULL
+                to_page_index_id int NOT NULL REFERENCES page_index(id)
             );
         `,
         "words": `

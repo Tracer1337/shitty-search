@@ -24,7 +24,7 @@ export default class WordsRepository {
     }
 
     public static getByWordContent = Utils.memoizedAsync(
-        async (word: string, create = false) => {
+        async (word: string, create: boolean = false) => {
             const result = await Database.getConnection().query(`
                 SELECT * FROM ${this} WHERE word='${word}'
             `)

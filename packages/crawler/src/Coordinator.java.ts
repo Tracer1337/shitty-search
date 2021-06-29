@@ -58,7 +58,7 @@ export default class Coordinator {
         result: WorkerResult | null
     }) {
         await ErrorHandler.withErrorHandlerAsync(async () => {
-            const pageIndex = await PageIndexRepository.create({ url: source })
+            const pageIndex = await PageIndexRepository.get({ url: source }, true)
             if (result !== null) {
                 const resultStorage = new WorkerResultStorage(pageIndex, result)
                 await resultStorage.storeResult()

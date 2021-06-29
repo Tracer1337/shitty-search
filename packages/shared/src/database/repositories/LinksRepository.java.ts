@@ -14,7 +14,7 @@ export default class LinksRepository {
 
     public static async createMany(items: {
         from_page_index_id: number,
-        to_url: string
+        to_page_index_id: number
     }[]) {
         if (items.length === 0) {
             return
@@ -23,14 +23,14 @@ export default class LinksRepository {
             new Link({
                 id: null,
                 from_page_index_id: values.from_page_index_id,
-                to_url: values.to_url
+                to_page_index_id: values.to_page_index_id
             })
         )
         const tuples = links.map((link) =>
-            `('${link.from_page_index_id}', '${link.to_url}')`
+            `('${link.from_page_index_id}', '${link.to_page_index_id}')`
         )
         await Database.getConnection().query(`
-            INSERT INTO ${this.TABLE} (from_page_index_id, to_url)
+            INSERT INTO ${this.TABLE} (from_page_index_id, to_page_index_id)
             VALUES ${tuples.join(", ")}
         `)
     }
@@ -49,7 +49,7 @@ export default class LinksRepository {
             new Link({
                 id: row.id,
                 from_page_index_id: row.from_page_index_id,
-                to_url: row.to_url
+                to_page_index_id: row.to_page_index_id
             })
         )
     }

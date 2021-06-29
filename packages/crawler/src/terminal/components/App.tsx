@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react"
 import { Box } from "ink"
 import { EventEmitter } from "events"
-import PageIndexSize from "./PageIndexSize"
+import IndexedPagesSize from "./IndexedPagesSize"
+import CrawledPagesSize from "./CrawledPagesSize"
 import WorkerTable from "./WorkerTable"
 import RootState from "../state/RootState.java"
 import Utils from "shared/dist/Utils.java"
@@ -20,7 +21,8 @@ export default function App({ bridge, initialState }: {
 
     return (
         <Box flexDirection="column">
-            <PageIndexSize state={state}/>
+            <IndexedPagesSize state={state}/>
+            <CrawledPagesSize state={state}/>
             <WorkerTable state={state}/>
         </Box>
     )

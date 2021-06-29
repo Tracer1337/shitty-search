@@ -19,18 +19,19 @@ export default class TerminalUI {
             initialState: this.state
         }))
 
-        this.startUpdateLoop()
-    }
-
-    private startUpdateLoop() {
-        this.update().then(() => {
-            setTimeout(this.startUpdateLoop.bind(this), TerminalUI.UPDATE_INTERVAL)
-        })
+        this.update()
     }
 
     private async update() {
-        const indexSize = await PageIndexRepository.getIndexSize()
-        this.setIndexSizeState(indexSize)
+        const indexedPages = await PageIndexRepository.getIndexSize()
+        const crawledPages = await PageIndexRepository.getCrawledPagesSize()
+
+        const newState = this.state.clone()
+        newState.indexedPages = indexedPages
+        newState.crawledPages = crawledPages
+        this.setState(newState)
+
+        setTimeout(this.update.bind(this), TerminalUI.UPDATE_INTERVAL)
     }
 
     private setState(state: RootState) {
@@ -41,12 +42,6 @@ export default class TerminalUI {
     public setWorkerState(workerState: WorkerState[]) {
         const newState = this.state.clone()
         newState.workers = workerState
-        this.setState(newState)
-    }
-
-    public setIndexSizeState(indexSizeState: number) {
-        const newState = this.state.clone()
-        newState.indexSize = indexSizeState
         this.setState(newState)
     }
 }

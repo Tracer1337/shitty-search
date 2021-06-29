@@ -3,6 +3,7 @@ import LinksRepository from "shared/dist/database/repositories/LinksRepository.j
 import WordsRepository from "shared/dist/database/repositories/WordsRepository.java"
 import IndexedWordsRepository from "shared/dist/database/repositories/IndexedWordsRepository.java"
 import IndexQueueRepository from "shared/dist/database/repositories/IndexQueueRepository.java"
+import PageIndexRepository from "../../shared/dist/database/repositories/PageIndexRepository.java"
 import WorkerResult from "./structures/WorkerResult.java"
 import Utils from "shared/dist/Utils.java"
 import ErrorHandler from "./ErrorHandler.java"
@@ -23,18 +24,19 @@ export default class WorkerResultStorage {
     }
 
     private async storeLinks() {
-        await LinksRepository.createMany(
-            this.result.links.map((url) => ({
-                from_page_index_id: this.pageIndex.id,
-                to_url: url
-            }))
-        )
         for (let url of this.result.links) {
             const isKnownUrl = await Utils.isKnownUrl(url)
             if (!isKnownUrl) {
                 await IndexQueueRepository.add({ url })
             }
         }
+        const pageIndexMap = await this.createPageIndexMap(this.result.links)
+        await LinksRepository.createMany(
+            this.result.links.map((url) => ({
+                from_page_index_id: this.pageIndex.id,
+                to_page_index_id: pageIndexMap[url].id
+            }))
+        )
     }
 
     private async storeWords() {
@@ -50,5 +52,13 @@ export default class WorkerResultStorage {
                 position: i
             }))
         )
+    }
+
+    private async createPageIndexMap(urls: string[]) {
+        const map: Record<string, PageIndex> = {}
+        await Promise.all(urls.map(async (url) => {
+            map[url] = await PageIndexRepository.get({ url }, true)
+        }))
+        return map
     }
 }
