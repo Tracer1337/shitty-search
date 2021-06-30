@@ -1,12 +1,11 @@
 {
-  "name": "search",
+  "name": "pagerank",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/Search.java",
   "scripts": {
-    "dev": "java-dev -classpath src Search",
+    "dev": "java-dev -classpath src Coordinator",
     "build": "rimraf dist && tsc",
-    "start": "java -classpath dist Search"
+    "start": "java -classpath dist Coordinator"
   },
   "keywords": [],
   "author": "",
