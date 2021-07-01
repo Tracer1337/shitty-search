@@ -6,6 +6,18 @@ class Node {
         this.edges = edges
     }
 
+    getScore() {
+        return this.score
+    }
+
+    setScore(score) {
+        this.score = score
+    }
+
+    getEdges() {
+        return this.edges
+    }
+
     connectsToNode(node) {
         return this.edges.includes(node)
     }
@@ -14,6 +26,18 @@ class Node {
 class Graph {
     constructor(nodes) {
         this.nodes = nodes
+    }
+
+    * nodeGenerator() {
+        for (let node of this.nodes) {
+            yield node
+        }    
+    }
+
+    getInboundNodes(node) {
+        return this.nodes.filter(
+            (_node) => _node.connectsToNode(node)
+        )
     }
 
     print() {
@@ -33,24 +57,22 @@ class PageRank {
 
     nextIteration() {
         this.iteration++
-        for (let node of this.graph.nodes) {
-            node.score = this.calcScore(node)
+        const generator = this.graph.nodeGenerator()
+        for (let node of generator) {
+            const score = this.calcScore(node)
+            node.setScore(score)
         }
     }
 
     calcScore(node) {
-        const inboundNodes = this.getInboundNodes(node)
+        const inboundNodes = this.graph.getInboundNodes(node)
         let sum = 0
-        for (let node of inboundNodes) {
-            sum += node.score / node.edges.length
+        for (let inNode of inboundNodes) {
+            const score = inNode.getScore()
+            const edges = inNode.getEdges()
+            sum += score / edges.length
         }
         return (1 - this.d) / this.n + this.d * sum
-    }
-
-    getInboundNodes(node) {
-        return this.graph.nodes.filter(
-            (_node) => _node.connectsToNode(node)
-        )
     }
 }
 
