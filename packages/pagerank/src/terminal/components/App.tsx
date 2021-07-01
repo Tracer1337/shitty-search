@@ -2,10 +2,9 @@ import React, { useEffect, useState } from "react"
 import { Box } from "ink"
 import { EventEmitter } from "events"
 import Utils from "shared/dist/Utils.java"
-import IndexedPagesSize from "./IndexedPagesSize"
-import CrawledPagesSize from "./CrawledPagesSize"
-import WorkerTable from "./WorkerTable"
 import RootState from "../state/RootState.java"
+import Iteration from "./Iteration"
+import Progress from "./Progress"
 
 export default function App({ bridge, initialState }: {
     bridge: EventEmitter,
@@ -21,9 +20,8 @@ export default function App({ bridge, initialState }: {
 
     return (
         <Box flexDirection="column">
-            <IndexedPagesSize state={state}/>
-            <CrawledPagesSize state={state}/>
-            <WorkerTable state={state}/>
+            <Iteration state={state}/>
+            <Progress state={state}/>
         </Box>
     )
 }
