@@ -48,4 +48,23 @@ export default class LinksRepository {
             })
         )
     }
+
+    public static async getAmountOfLinks(pageIndexes: PageIndex[]) {
+        if (pageIndexes.length === 0) {
+            return {}
+        }
+        const result = await Database.getConnection().query(`
+            SELECT from_page_index_id, COUNT(from_page_index_id)
+            FROM ${this}
+            WHERE links.from_page_index_id
+            IN (${Utils.stringifyList(Utils.pickFromArrayAsString(pageIndexes, "id"))})
+            GROUP BY from_page_index_id
+        `)
+        const rows = result[0] as RowDataPacket[]
+        const entries = rows.map((row) => ([
+            row.from_page_index_id,
+            row["COUNT(from_page_index_id)"]
+        ]))
+        return Object.fromEntries(entries) as Record<string, number>
+    }
 }

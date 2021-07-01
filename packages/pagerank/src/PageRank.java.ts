@@ -1,5 +1,6 @@
-import PageIndex from "../__mocks__/PageIndex.java"
-import PageIndexRepository from "../__mocks__/PageIndexRepository.java"
+import PageIndex from "shared/dist/database/models/PageIndex.java"
+import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
+import LinksRepository from "shared/dist/database/repositories/LinksRepository.java"
 
 export default class PageRank {
     private static readonly NODE_GENERATOR_STEPS = 1000
@@ -10,13 +11,11 @@ export default class PageRank {
         for (let i = 0; i < iterations; i++) {
             await pageRank.nextIteration()
         }
-        console.log(`Result after ${iterations} iterations:`)
-        PageIndexRepository.print()
     }
 
     public static async createInstance() {
         const pageRank = new PageRank()
-        const n = await PageIndexRepository.getSize()
+        const n = await PageIndexRepository.getIndexSize()
         pageRank.setN(n)
         return pageRank
     }
@@ -37,11 +36,12 @@ export default class PageRank {
 
     private async calcScore(node: PageIndex) {
         const inboundNodes = await this.getInboundNodes(node)
+        const edgesMap = await this.getEdgesMap(inboundNodes)
         let sum = 0
         for (let inNode of inboundNodes) {
             const score = this.getScore(inNode)
-            const edges = await this.getEdges(inNode)
-            sum += score / edges.length
+            const edges = edgesMap[inNode.id]
+            sum += score / edges
         }
         return (1 - this.d) / this.n + this.d * sum
     }
@@ -54,8 +54,8 @@ export default class PageRank {
         return await PageIndexRepository.getInboundPages(node)
     }
 
-    private async getEdges(node: PageIndex) {
-        return await PageIndexRepository.getOutboundPages(node)
+    private async getEdgesMap(nodes: PageIndex[]) {
+        return await LinksRepository.getAmountOfLinks(nodes)
     }
 
     private async setScore(node: PageIndex, score: number) {

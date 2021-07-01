@@ -6,6 +6,7 @@ import Word from "../models/Word.java"
 import WordsRepository from "./WordsRepository.java"
 import IndexedWordsRepository from "./IndexedWordsRepository.java"
 import IndexQueueRepository from "./IndexQueueRepository.java"
+import LinksRepository from "./LinksRepository.java"
 
 export default class PageIndexRepository {
     public static readonly TABLE = "page_index"
@@ -17,7 +18,8 @@ export default class PageIndexRepository {
     public static async create(values: { url: string }) {
         const pageIndex = new PageIndex({
             id: null,
-            url: values.url
+            url: values.url,
+            page_rank: 1
         })
         const result = await Database.getConnection().query(`
             INSERT INTO ${this} (url) VALUES ('${pageIndex.url}')
@@ -38,11 +40,41 @@ export default class PageIndexRepository {
             }
             return new PageIndex({
                 id: row.id,
-                url: row.url
+                url: row.url,
+                page_rank: row.page_rank
             })
         },
         (values) => values.url
     )
+
+    public static async getAll(options?: {
+        from?: number,
+        to?: number
+    }) {
+        const result = await Database.getConnection().query(`
+            SELECT * FROM ${this}
+            ORDER BY id ASC
+            ${options.from && options.to
+                ? `LIMIT ${options.from}, ${options.to}`
+                : ""}
+        `)
+        const rows = result[0] as RowDataPacket[]
+        return rows.map((row) =>
+            new PageIndex({
+                id: row.id,
+                url: row.url,
+                page_rank: row.page_rank
+            })
+        )
+    }
+
+    public static async update(pageIndex: PageIndex) {
+        await Database.getConnection().query(`
+            UPDATE ${this}
+            SET url='${pageIndex.url}', page_rank=${pageIndex.page_rank}
+            WHERE id=${pageIndex.id}
+        `)
+    }
 
     public static async isIndexed(url: string) {
         const res = await Database.getConnection().query(`
@@ -85,7 +117,26 @@ export default class PageIndexRepository {
         return rows.map((row) =>
             new PageIndex({
                 id: row.id,
-                url: row.url
+                url: row.url,
+                page_rank: row.page_rank
+            })
+        )
+    }
+
+    public static async getInboundPages(pageIndex: PageIndex) {
+        const result = await Database.getConnection().query(`
+            SELECT ${this}.*
+            FROM ${LinksRepository}
+            INNER JOIN ${this}
+            ON ${LinksRepository}.from_page_index_id = ${this}.id
+            WHERE ${LinksRepository}.to_page_index_id = ${pageIndex.id}
+        `)
+        const rows = result[0] as RowDataPacket[]
+        return rows.map((row) =>
+            new PageIndex({
+                id: row.id,
+                url: row.url,
+                page_rank: row.page_rank
             })
         )
     }
