@@ -47,7 +47,8 @@ export default class Crawler {
         const parser = new Parser(html)
         const result = new WorkerResult({
             links: Array.from(parser.getLinks()),
-            words: parser.getWords()
+            words: parser.getWords(),
+            title: parser.getTitle()
         })
 
         return result

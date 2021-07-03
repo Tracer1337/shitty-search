@@ -14,14 +14,18 @@ export default class PageIndexRepository {
         return this.TABLE
     }
     
-    public static async create(values: { url: string }) {
+    public static async create(values: {
+        url: string,
+        title: string
+    }) {
         const pageIndex = new PageIndex({
             id: null,
             url: values.url,
-            page_rank: 1
+            page_rank: 1,
+            title: values.title
         })
         const result = await Database.getConnection().query(`
-            INSERT INTO ${this} (url) VALUES ('${pageIndex.url}')
+            INSERT INTO ${this} (url, title) VALUES ('${pageIndex.url}', '${pageIndex.title}')
         `)
         const header = result[0] as ResultSetHeader
         pageIndex.id = header.insertId
@@ -35,12 +39,16 @@ export default class PageIndexRepository {
             `)
             const [row] = result[0] as RowDataPacket[]
             if (!row) {
-                return !create ? null : await this.create(values)
+                return !create ? null : await this.create({
+                    title: "",
+                    ...values
+                })
             }
             return new PageIndex({
                 id: row.id,
                 url: row.url,
-                page_rank: row.page_rank
+                page_rank: row.page_rank,
+                title: row.title
             })
         },
         (values) => values.url
@@ -55,7 +63,8 @@ export default class PageIndexRepository {
             new PageIndex({
                 id: row.id,
                 url: row.url,
-                page_rank: row.page_rank
+                page_rank: row.page_rank,
+                title: row.title
             })
         )
     }
@@ -63,7 +72,9 @@ export default class PageIndexRepository {
     public static async update(pageIndex: PageIndex) {
         await Database.getConnection().query(`
             UPDATE ${this}
-            SET url='${pageIndex.url}', page_rank=${pageIndex.page_rank}
+            SET url='${pageIndex.url}',
+                page_rank=${pageIndex.page_rank},
+                title=${pageIndex.title}
             WHERE id=${pageIndex.id}
         `)
     }
@@ -71,11 +82,16 @@ export default class PageIndexRepository {
     public static async updateAll(pageIndexes: PageIndex[]) {
         const values = pageIndexes
             .map((pageIndex) =>
-                `('${pageIndex.id}', '${pageIndex.url}', '${pageIndex.page_rank}')`
+                `(
+                    '${pageIndex.id}',
+                    '${pageIndex.url}',
+                    '${pageIndex.page_rank}',
+                    '${pageIndex.title}'
+                )`
             )
             .join(", ")
         const query = `
-            INSERT INTO ${this} (id, url, page_rank)
+            INSERT INTO ${this} (id, url, page_rank, title)
             VALUES ${values}
             ON DUPLICATE KEY UPDATE page_rank=VALUES(page_rank)
         `
@@ -124,7 +140,8 @@ export default class PageIndexRepository {
             new PageIndex({
                 id: row.id,
                 url: row.url,
-                page_rank: row.page_rank
+                page_rank: row.page_rank,
+                title: row.title
             })
         )
     }

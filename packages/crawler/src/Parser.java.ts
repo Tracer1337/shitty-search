@@ -6,6 +6,7 @@ export default class Parser {
     private static readonly WORD_MIN_LENGTH = 2
     private static readonly WORD_MAX_LENGTH = 255
     private static readonly MAX_WORDS = 1e4
+    private static readonly TITLE_MAX_LENGTH = 255
     private static readonly IGNORE_TAGS = [
         "style",
         "script",
@@ -62,6 +63,11 @@ export default class Parser {
             }
         })
         return words
+    }
+
+    public getTitle() {
+        const title = this.$("title").text() || ""
+        return title.substring(0, Parser.TITLE_MAX_LENGTH)
     }
 
     private trimUrl(urlString: string) {

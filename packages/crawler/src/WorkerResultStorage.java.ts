@@ -19,7 +19,8 @@ export default class WorkerResultStorage {
     public async storeResult() {
         await Promise.all([
             this.storeLinks(),
-            this.storeWords()
+            this.storeWords(),
+            this.storeTitle()
         ])
     }
 
@@ -52,6 +53,11 @@ export default class WorkerResultStorage {
                 position: i
             }))
         )
+    }
+
+    private async storeTitle() {
+        this.pageIndex.title = encodeURIComponent(this.result.title)
+        await PageIndexRepository.update(this.pageIndex)
     }
 
     private async createPageIndexMap(urls: string[]) {
