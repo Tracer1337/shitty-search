@@ -19,7 +19,7 @@
     "ink": "^3.0.8",
     "java-without-the-tears": "*",
     "mathjs": "^9.4.3",
-    "react": "^17.0.2",
+    "react": "^16.14.0",
     "shared": "*"
   }
 }
