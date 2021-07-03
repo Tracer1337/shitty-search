@@ -11,7 +11,7 @@ export default function Iteration({ state }: {
                 <Text>Iteration:</Text>
             </Box>
             <Box>
-                <Text>{state.iteration}</Text>
+                <Text>{state.iteration + 1} / {state.targetIterations}</Text>
             </Box>
         </Box>
     )

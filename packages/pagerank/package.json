@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "java-dev -classpath src PageRank",
+    "dev": "java-dev -classpath src Runner",
     "build": "rimraf dist && tsc",
-    "start": "java -classpath dist PageRank"
+    "start": "java -classpath dist Runner"
   },
   "keywords": [],
   "author": "",

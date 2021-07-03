@@ -2,16 +2,16 @@ import React from "react"
 import { Box, Text } from "ink"
 import RootState from "../state/RootState.java"
 
-export default function Progress({ state }: {
+export default function Status({ state }: {
     state: RootState
 }) {
     return (
         <Box>
             <Box width={20}>
-                <Text>Progress:</Text>
+                <Text>Status:</Text>
             </Box>
             <Box>
-                <Text>{state.amountDone} / {state.amountTotal}</Text>
+                <Text>{state.status}</Text>
             </Box>
         </Box>
     )

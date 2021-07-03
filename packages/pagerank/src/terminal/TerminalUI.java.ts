@@ -1,5 +1,5 @@
 import React from "react"
-import { render } from "ink"
+import { render, Instance } from "ink"
 import { EventEmitter } from "events"
 import App from "./components/App"
 import RootState from "./state/RootState.java"
@@ -8,14 +8,19 @@ export default class TerminalUI {
     private static readonly UPDATE_INTERVAL = 500
     private bridge = new EventEmitter()
     private state = new RootState({})
+    private instance: Instance
 
     constructor() {
-        render(React.createElement(App, {
+        this.instance = render(React.createElement(App, {
             bridge: this.bridge,
             initialState: this.state
         }))
 
         this.update()
+    }
+
+    public destroy() {
+        this.instance.unmount()
     }
 
     private async update() {
@@ -36,15 +41,15 @@ export default class TerminalUI {
         this.setState(state)
     }
 
-    public setAmountDoneState(amountDoneState: number) {
+    public setTargetIterationsState(targetIterationsState: number) {
         const state = this.state.clone()
-        state.amountDone = amountDoneState
+        state.targetIterations = targetIterationsState
         this.setState(state)
     }
-
-    public setAmountTotalState(amountTotalState: number) {
+    
+    public setStatusState(statusState: RootState["status"]) {
         const state = this.state.clone()
-        state.amountTotal = amountTotalState
+        state.status = statusState
         this.setState(state)
     }
 }

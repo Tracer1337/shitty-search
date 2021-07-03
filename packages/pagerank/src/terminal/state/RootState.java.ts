@@ -2,25 +2,25 @@ import State from "./State.java"
 
 export default class RootState extends State {
     public iteration = 0
-    public amountDone = 0
-    public amountTotal = 0
+    public targetIterations = 0
+    public status: "Idle" | "Fetching" | "Ranking" | "Storing" = "Idle"
 
     constructor(values: {
         iteration?: number,
-        amountDone?: number,
-        amountTotal?: number
+        targetIterations?: number,
+        status?: RootState["status"]
     }) {
         super()
         this.iteration = values.iteration
-        this.amountDone = values.amountDone
-        this.amountTotal = values.amountTotal
+        this.targetIterations = values.targetIterations
+        this.status = values.status
     }
 
     public clone() {
         return new RootState({
             iteration: this.iteration,
-            amountDone: this.amountDone,
-            amountTotal: this.amountTotal
+            targetIterations: this.targetIterations,
+            status: this.status
         })
     }
 }

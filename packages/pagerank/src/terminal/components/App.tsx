@@ -4,7 +4,7 @@ import { EventEmitter } from "events"
 import Utils from "shared/dist/Utils.java"
 import RootState from "../state/RootState.java"
 import Iteration from "./Iteration"
-import Progress from "./Progress"
+import Status from "./Status"
 
 export default function App({ bridge, initialState }: {
     bridge: EventEmitter,
@@ -20,8 +20,8 @@ export default function App({ bridge, initialState }: {
 
     return (
         <Box flexDirection="column">
+            <Status state={state}/>
             <Iteration state={state}/>
-            <Progress state={state}/>
         </Box>
     )
 }
