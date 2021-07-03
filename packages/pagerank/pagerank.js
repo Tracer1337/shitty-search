@@ -16,6 +16,12 @@ class Graph {
         this.nodes = nodes
     }
 
+    getInboundNodes(node) {
+        return this.nodes.filter(
+            (_node) => _node.connectsToNode(node)
+        )
+    }
+
     print() {
         for (let node of this.nodes) {
             console.log(`${node.key}: ${node.score}`)
@@ -39,19 +45,13 @@ class PageRank {
     }
 
     calcScore(node) {
-        const inboundNodes = this.getInboundNodes(node)
+        const inboundNodes = this.graph.getInboundNodes(node)
         let sum = 0
         for (let node of inboundNodes) {
             sum += node.score / node.edges.length
         }
         return (1 - this.d) / this.n + this.d * sum
-    }
-
-    getInboundNodes(node) {
-        return this.graph.nodes.filter(
-            (_node) => _node.connectsToNode(node)
-        )
-    }
+    }    
 }
 
 const A = new Node('A', [])

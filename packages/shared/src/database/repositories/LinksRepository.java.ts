@@ -11,6 +11,20 @@ export default class LinksRepository {
         return this.TABLE
     }
 
+    public static async getAll() {
+        const result = await Database.getConnection().query(`
+            SELECT * FROM ${this}
+        `)
+        const rows = result[0] as RowDataPacket[]
+        return rows.map((row) =>
+            new Link({
+                id: row.id,
+                from_page_index_id: row.from_page_index_id,
+                to_page_index_id: row.to_page_index_id
+            })
+        )
+    }
+
     public static async createMany(items: {
         from_page_index_id: number,
         to_page_index_id: number
@@ -47,24 +61,5 @@ export default class LinksRepository {
                 to_page_index_id: row.to_page_index_id
             })
         )
-    }
-
-    public static async getAmountOfLinks(pageIndexes: PageIndex[]) {
-        if (pageIndexes.length === 0) {
-            return {}
-        }
-        const result = await Database.getConnection().query(`
-            SELECT from_page_index_id, COUNT(from_page_index_id)
-            FROM ${this}
-            WHERE links.from_page_index_id
-            IN (${Utils.stringifyList(Utils.pickFromArrayAsString(pageIndexes, "id"))})
-            GROUP BY from_page_index_id
-        `)
-        const rows = result[0] as RowDataPacket[]
-        const entries = rows.map((row) => ([
-            row.from_page_index_id,
-            row["COUNT(from_page_index_id)"]
-        ]))
-        return Object.fromEntries(entries) as Record<string, number>
     }
 }
