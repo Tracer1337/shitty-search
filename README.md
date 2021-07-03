@@ -10,4 +10,4 @@
 
 Shitty-Search is the worst search engine you have ever seen. But you have seen it.
 
-./docs/assets/sparrow.mp4
+https://user-images.githubusercontent.com/6074468/124366478-726a5e00-dc50-11eb-947c-5e5aab518947.mp4
