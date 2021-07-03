@@ -7,7 +7,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn workspace shared run build && yarn workspaces run build"
+    "build": "yarn workspace shared run build && yarn workspaces run build",
+    "docker:crawler": "docker build -t tracer1337/shitty-search:crawler -f ./docker/Dockerfile.crawler .",
+    "docker:server": "docker build -t tracer1337/shitty-search:server -f ./docker/Dockerfile.server .",
+    "docker:pagerank": "docker build -t tracer1337/shitty-search:pagerank -f ./docker/Dockerfile.pagerank ."
   },
   "repository": {
     "type": "git",
