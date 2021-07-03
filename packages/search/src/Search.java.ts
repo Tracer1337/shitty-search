@@ -20,12 +20,12 @@ export default class Search {
     private static readonly MAX_KEYWORDS = 100
     // TODO: Use correct typing here (should be [number, typeof Score])
     private static readonly scores: [number, typeof WordFrequencyScore][] = [
-        [1, WordFrequencyScore],
-        [1, WordLocationScore],
-        [1, WordDistanceScore],
-        [1, ContainsKeywordsScore],
-        [1, InboundLinksScore],
-        [1, PageRankScore]
+        [1,   WordFrequencyScore],
+        [1,   WordLocationScore],
+        [1,   WordDistanceScore],
+        [2,   ContainsKeywordsScore],
+        [0.7, InboundLinksScore],
+        [1.5, PageRankScore]
     ]
 
     private keywords: Word[]
