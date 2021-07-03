@@ -15,7 +15,7 @@ export default class Database {
             CREATE TABLE IF NOT EXISTS page_index (
                 id int PRIMARY KEY AUTO_INCREMENT,
                 url varchar(255) NOT NULL UNIQUE,
-                page_rank int DEFAULT 1
+                page_rank float DEFAULT 1
             );
         `,
         "links": `
