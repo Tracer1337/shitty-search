@@ -74,7 +74,7 @@ export default class PageIndexRepository {
             UPDATE ${this}
             SET url='${pageIndex.url}',
                 page_rank=${pageIndex.page_rank},
-                title=${pageIndex.title}
+                title='${pageIndex.title}'
             WHERE id=${pageIndex.id}
         `)
     }
