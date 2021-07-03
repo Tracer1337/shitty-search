@@ -110,7 +110,7 @@ export default class PageIndexRepository {
     public static async queryByWords(words: Word[]) {
         const wordIds = Utils.pickFromArrayAsString(words, "id")
         const result = await Database.getConnection().query(`
-            SELECT DISTINCT ${this}.id, ${this}.url
+            SELECT DISTINCT ${this}.*
             FROM ${IndexedWordsRepository}
             INNER JOIN ${WordsRepository}
             ON ${IndexedWordsRepository}.word_id = ${WordsRepository}.id

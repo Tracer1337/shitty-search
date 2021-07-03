@@ -14,6 +14,7 @@ import WordLocationScore from "./scores/WordLocationScore.java"
 import WordDistanceScore from "./scores/WordDistanceScore.java"
 import ContainsKeywordsScore from "./scores/ContainsKeywordsScore.java"
 import InboundLinksScore from "./scores/InboundLinksScore.java"
+import PageRankScore from "./scores/PagerankScore.java"
 
 export default class Search {
     private static readonly MAX_KEYWORDS = 100
@@ -23,7 +24,8 @@ export default class Search {
         [1, WordLocationScore],
         [1, WordDistanceScore],
         [1, ContainsKeywordsScore],
-        [1, InboundLinksScore]
+        [1, InboundLinksScore],
+        [1, PageRankScore]
     ]
 
     private keywords: Word[]
