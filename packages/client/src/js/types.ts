@@ -16,7 +16,8 @@ export declare namespace API {
     }
 
     export type PageIndex = {
-        url: string
+        url: string,
+        title: string
     }
 
     export type SearchResponse = PerformanceResponse<PaginatedResponse<PageIndex>>
