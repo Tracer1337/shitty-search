@@ -6,6 +6,10 @@
     </p>
 </a>
 
+<p align="center">
+    <img src="https://v2202104145753149514.ultrasrv.de:3500/index-badge" alt="Indexed Pages">
+</p>
+
 ---
 
 ### [Demo](https://tracer1337.github.io/shitty-search/)
