@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from "express"
 import cors from "cors"
 import { performance } from "perf_hooks"
 import Search from "search"
+import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
 import path from "path"
 import dotenv from "dotenv"
 dotenv.config({ path: path.join(__dirname, "..", ".env") })
@@ -29,6 +30,7 @@ export default class Server {
     private boot(app: Express) {
         app.use(cors())
         app.get("/search", this.handleSearch.bind(this))
+        app.get("/index-size", this.handleIndexSize.bind(this))
     }
 
     private async handleSearch(req: Request, res: Response) {
@@ -67,5 +69,10 @@ export default class Server {
             console.error(error)
             return res.sendStatus(500)
         }
+    }
+
+    private async handleIndexSize(req: Request, res: Response) {
+        const size = await PageIndexRepository.getCrawledPagesSize()
+        return res.send({ size })
     }
 }

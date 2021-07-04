@@ -21,6 +21,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "java-without-the-tears": "*",
-    "search": "*"
+    "search": "*",
+    "shared": "*"
   }
 }
