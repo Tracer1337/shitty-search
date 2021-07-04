@@ -8,6 +8,6 @@
 
 ---
 
-Shitty-Search is the worst search engine you have ever seen. But you have seen it.
+Shitty-Search is the worst search engine you have ever seen.
 
-https://user-images.githubusercontent.com/6074468/124366478-726a5e00-dc50-11eb-947c-5e5aab518947.mp4
+[<img src="./docs/assets/video-preview.png" alt="Video" width="500">](https://www.youtube.com/watch?v=C5kGCwJ25Yc)
