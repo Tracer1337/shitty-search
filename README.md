@@ -8,6 +8,8 @@
 
 ---
 
+### [Demo](https://tracer1337.github.io/shitty-search/)
+
 Shitty-Search is the worst search engine you have ever seen.
 
 [<img src="./docs/assets/video-preview.png" alt="Video" width="500">](https://www.youtube.com/watch?v=C5kGCwJ25Yc)
