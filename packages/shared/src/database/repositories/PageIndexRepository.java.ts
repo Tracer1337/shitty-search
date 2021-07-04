@@ -82,12 +82,7 @@ export default class PageIndexRepository {
     public static async updateAll(pageIndexes: PageIndex[]) {
         const values = pageIndexes
             .map((pageIndex) =>
-                `(
-                    '${pageIndex.id}',
-                    '${pageIndex.url}',
-                    '${pageIndex.page_rank}',
-                    '${pageIndex.title}'
-                )`
+                `('${pageIndex.id}', '', '${pageIndex.page_rank}', '')`
             )
             .join(", ")
         const query = `
