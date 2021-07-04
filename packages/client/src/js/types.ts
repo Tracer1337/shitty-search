@@ -21,4 +21,5 @@ export declare namespace API {
     }
 
     export type SearchResponse = PerformanceResponse<PaginatedResponse<PageIndex>>
+    export type IndexSizeResponse = { size: number }
 }
