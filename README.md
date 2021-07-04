@@ -44,7 +44,7 @@ Crawls the internet and stores the data it found in the database.
 
 ### Pagerank
 
-Implementation of the pagerank algorithm as defined on [Wikipedia](https://en.wikipedia.org/wiki/PageRank). The ``Runner`` class adapts the pagerank algorithm to the database, but this package can be used in any situation.
+Implementation of the pagerank algorithm as desribed on [Wikipedia](https://en.wikipedia.org/wiki/PageRank). The ``Runner`` class adapts the pagerank algorithm to the database, but this package can be used in any situation.
 
 ### Search
 
