@@ -30,7 +30,7 @@ cd shitty-search
 yarn
 ```
 
-This project uses yarn, primarily for the monorepo design. Some packages from ``/packages`` depend on other packages stored there and yarn will link them through the ``node_modules`` folder. Keep in mind that in order to use the code of a package in another package, it has to be compiled and imported through the ``/dist`` folder. That also means that in development you will often use ``yarn build`` to use code changes in another package.
+This project uses yarn, primarily for the monorepo design. Some packages from ``/packages`` depend on other packages stored there and yarn will link them through the ``node_modules`` folder. Keep in mind that in order to use the code from a package in another package, it has to be compiled and imported through the ``/dist`` folder. This also means that in development you will often use ``yarn build`` to use code changes in another package.
 
 # Packages
 
