@@ -1,8 +1,9 @@
 import express, { Express, Request, Response } from "express"
 import cors from "cors"
-import { performance } from "perf_hooks"
+import { makeBadge } from "badge-maker"
 import Search from "search"
 import PageIndexRepository from "shared/dist/database/repositories/PageIndexRepository.java"
+import { performance } from "perf_hooks"
 import path from "path"
 import dotenv from "dotenv"
 dotenv.config({ path: path.join(__dirname, "..", ".env") })
@@ -31,6 +32,7 @@ export default class Server {
         app.use(cors())
         app.get("/search", this.handleSearch.bind(this))
         app.get("/index-size", this.handleIndexSize.bind(this))
+        app.get("/index-badge", this.handleIndexBadge.bind(this))
     }
 
     private async handleSearch(req: Request, res: Response) {
@@ -74,5 +76,15 @@ export default class Server {
     private async handleIndexSize(req: Request, res: Response) {
         const size = await PageIndexRepository.getCrawledPagesSize()
         return res.send({ size })
+    }
+    
+    private async handleIndexBadge(req: Request, res: Response) {
+        const size = await PageIndexRepository.getCrawledPagesSize()
+        const badge = makeBadge({
+            label: "Indexed Pages",
+            message: size.toString(),
+            color: "brightgreen"
+        })
+        return res.contentType("image/svg+xml").send(badge)
     }
 }
